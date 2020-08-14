@@ -1,0 +1,164 @@
+\chapter{Introduction}
+\section{Definitions}
+\subsubsection{Communication}
+Communication is the activity of conveying information.
+
+\subsubsection{Channel}
+The channel is the part of the communication system
+that one is either unwilling or unable to change.
+
+\subsubsection{Transmitter/Receiver Resources}
+\begin{itemize}
+    \item Signal Power
+    \item Bandwidth
+    \item Processing and Storage Capabilities
+\end{itemize}
+
+\section{Digital Communications}
+\subsection{Advantages}
+\begin{itemize}
+    \item Higher power efficiency
+    \item Flexible trade off between power- and bandwidth-effienciency
+    \item Signal regeneration is possible
+\end{itemize}
+
+\section{Channel-Models}
+\subsection{General RF-Model}
+\begin{enumerate}
+    \item $s_\text{RF}(t)$ is transformed to $r_\text{RF}'(t)$ by attenuation and
+        disturbances in the channel
+    \item $r_\text{RF}'(t)$ is transformed to $r_\text{RF}(t)$ by the amplifier
+        and passband filter of the receiver
+\end{enumerate}
+
+\subsection{Equivalent Linear Model in ECB-Domain}
+\begin{enumerate}
+    \item The signal $s(t)$ is transformed by $h_C(t) \laplace H_C(f)$ to $\tilde{r}(t)$
+    \item Additive noise is added to form $r(t) = \tilde{r}(t) + n(t)$
+\end{enumerate}
+
+\subsection{Noise}
+\subsubsection{White Gaussian Noise}
+\begin{itemize}
+    \item The noise process $n(t)$ is stationary, i.e. its statistical properties
+        do not change over time
+    \item The PDF at any time instance $t$ is a Gaussian
+    \item The noise has constant power spectral density (psd):
+        \begin{equation}
+            \Phi_{nn}(f) = N_0\ \forall f
+        \end{equation}
+        in time domain: the autocorrelation is:
+        \begin{equation}
+            \phi_{nn}(t) = N_0 \delta(t)
+        \end{equation}
+\end{itemize} 
+
+\subsubsection{Colored Gaussian Noise}
+Same properties as white gaussian noise but the psd is not constant/the autocorrelation
+shows temporal dependencies.
+
+\subsubsection{Whitening Filter}
+The linear filter
+\begin{equation}
+    H_W(f) =
+    \begin{cases}
+        \sqrt{\frac{N_0}{\Phi_{nn}(f)}} e^{j \phi(f)} & \abs{f} \leq \frac{B_\text{RF}}{2} \\
+        \text{arbitrary} & \text{else}
+    \end{cases}
+\end{equation}
+transform noise with psd $\Phi_nn(f)$ and (baseband) bandwidth $B_\text{RF}$ to
+white noise in the baseband.
+
+By implementing this filter as part of our receiver we can guarantee white noise with
+the downside of linear distortion of the receive signal. 
+Thus we can restrict our derivations to white noise and linear distortions instead of considering both issues.
+
+\subsection{Transmission Media}
+\subsubsection{Coaxial Cables}
+The transfer function can be approximated by:
+\begin{equation}
+    H_C(f) \approx 10^{a_\text{dB} l \sqrt{\frac{f}{f_N}} \frac{1}{20}} e^{-j 2\pi \frac{f l}{c_r}}
+\end{equation}
+with:
+\begin{itemize}
+    \item $l$: Cable length
+    \item $a_\text{dB}$: attenuation per kilometer (in dB) at $f_N$
+    \item $f_N$: normalization frequency
+    \item $c_r$: propagation speed. Given the electrical properties of the conductor
+        it can be calculated by:
+        \begin{equation}
+            c_r = \frac{c_0}{\sqrt{\varepsilon_r \mu_r}}
+        \end{equation}
+\end{itemize}
+
+This transfer function is in general non-flat over the transmission signal bandwidth.
+
+\subsubsection{Symmetric Wire Pairs}
+The transfer function can be approximated by
+\begin{equation}
+    \abs{H_C(f)} = 10^{-a_\text{dB}(f) \cdot l / 20}
+\end{equation}
+with frequency depended attenuation defined by:
+\begin{equation}
+    a_\text{dB} = a_0 + \sum_{i=1}^n a_i {\left(\frac{f}{f_0}\right)}^{b_i}
+\end{equation} 
+
+\subsubsection{Radio Transmission}
+\paragraph{Pure Propagation Loss}
+Only the attenuation over the channel is considered
+
+\paragraph{Multipath Propagation}
+At the receiver multiple scaled and delayed copies of the signal are received:
+\begin{equation}
+    h_c(t) = \sum_{i=1}^L c_i \delta(t - T_i)
+\end{equation}
+with:
+\begin{itemize}
+    \item $c_i$: complex gain factor of the $i$-th propagation path
+    \item $T_i$: delay of the $i$-th propagation path
+\end{itemize}
+
+thus a frequency depedent attenuation occurs.
+
+\section{Basics on Digital Communications}
+\subsection{Transmitter}
+The transmitter performs a mapping of an abstract, binary sequence of source symbols
+$<q[l]>, l \in \mathbb{Z}, q[l] \in \{0, 1\}$ onto a physical transmit signal $s(t)$.
+
+We assume binary, equal-probable symbols from a memoryless source (can be achieved by using
+channel coding).
+
+\subsection{Receiver}
+The receiver performs the inverse mapping of the transmitter.
+
+\subsection{Optimality Criteria in Digital Communications}
+\subsubsection{Power Efficiency}
+The power efficiency is given by the minimal SNR required to achieve a given BER.
+
+High power effiency $\Rightarrow$ small required SNR
+
+\subsubsection{Bandwidth Effiency}
+The bandwidth effiency is given by the datarate per bandwidth:
+\begin{equation}
+    \Gamma = \frac{R_T}{B_\text{RF}}
+\end{equation}
+
+High bandwidth effiency $\Rightarrow$ large $\Gamma$.
+
+\subsubsection{Other Criteria}
+\begin{itemize}
+    \item Complexity
+    \item Delay
+\end{itemize}
+
+\subsubsection{Trade-off}
+It is not possible to optimize both criteria at the same time, a trade off must be found.
+The limit for optimization is given by the channel capacity:
+\begin{equation}
+    C_T = B_\text{RF} \log_2 \left(1 + \frac{S}{R}\right)
+\end{equation}
+in the best case the channel capacity is equal to the data rate, in this case the limit
+is given by:
+\begin{equation}
+    \frac{E_b}{N_0} = \frac{2^\Gamma -1}{\Gamma}
+\end{equation}
