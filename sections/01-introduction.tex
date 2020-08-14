@@ -42,8 +42,8 @@ that one is either unwilling or unable to change.
 \begin{itemize}
     \item The noise process $n(t)$ is stationary, i.e. its statistical properties
         do not change over time
-    \item The PDF at any time instance $t$ is a Gaussian
-    \item The noise has constant power spectral density (psd):
+    \item The \ac{pdf} at any time instance $t$ is a Gaussian
+    \item The noise has constant \ac{psd}:
         \begin{equation}
             \Phi_{nn}(f) = N_0\ \forall f
         \end{equation}
@@ -54,7 +54,7 @@ that one is either unwilling or unable to change.
 \end{itemize} 
 
 \subsubsection{Colored Gaussian Noise}
-Same properties as white gaussian noise but the psd is not constant/the autocorrelation
+Same properties as white gaussian noise but the \ac{psd} is not constant/the autocorrelation
 shows temporal dependencies.
 
 \subsubsection{Whitening Filter}
@@ -66,7 +66,7 @@ The linear filter
         \text{arbitrary} & \text{else}
     \end{cases}
 \end{equation}
-transform noise with psd $\Phi_nn(f)$ and (baseband) bandwidth $B_\text{RF}$ to
+transform noise with psd $\Phi_{nn}(f)$ and (baseband) bandwidth $B_\text{RF}$ to
 white noise in the baseband.
 
 By implementing this filter as part of our receiver we can guarantee white noise with
@@ -133,9 +133,9 @@ The receiver performs the inverse mapping of the transmitter.
 
 \subsection{Optimality Criteria in Digital Communications}
 \subsubsection{Power Efficiency}
-The power efficiency is given by the minimal SNR required to achieve a given BER.
+The power efficiency is given by the minimal \ac{snr} required to achieve a given \ac{ber}.
 
-High power effiency $\Rightarrow$ small required SNR
+High power effiency $\Rightarrow$ small required \ac{snr}. 
 
 \subsubsection{Bandwidth Effiency}
 The bandwidth effiency is given by the datarate per bandwidth:
