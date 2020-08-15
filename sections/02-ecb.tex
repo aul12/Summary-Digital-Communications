@@ -1,0 +1,266 @@
+\chapter{Equivalent Complex Baseband Signals}
+\section{Definitions}
+\subsection{Bandpass Signal}
+Spectrum only exists for
+\begin{equation}
+    f_0 - \frac{B}{2} < \abs{f} < f_0 + \frac{B}{2}
+\end{equation}
+with
+\begin{itemize}
+    \item $f_0$: center frequency (in general not the same as the carrier frequency)
+    \item $B$: one sided bandwidth
+\end{itemize}
+
+\subsection{Baseband Transmission}
+A bandpass transmission with $f_0=0$.
+
+\subsection{Carrier}
+A carrier waveform is given by:
+\begin{equation}
+    c(t) = \sqrt{2} A_\text{RMS} \cos(2 \pi f t + \varphi)
+\end{equation}
+this harmonic oszillation is characterized by three properties:
+\begin{itemize}
+    \item $A_\text{RMS}$: RMS-Amplitude
+    \item $f$: Frequency
+    \item $\varphi$: Phase
+\end{itemize}
+
+The momentarily frequency is directly related to the time dependent phase:
+\begin{equation}
+    f_M(t) = \frac{1}{2\pi} \frac{\text{d}}{\text{d}t} \varphi(t)
+\end{equation}
+
+thus it is only necessary to consider one of the two signals for an arbitrary bandpass
+signal:
+\begin{equation} \label{eq:02:srf}
+    s_\text{RF}(t) = \sqrt{2} a_M(t) \cos(2\pi f_0 t + \varphi_M(t))
+\end{equation}
+with
+\begin{itemize}
+    \item $f_0$: reference frequency
+    \item $a_M(t)$: amplitude signal
+    \item $\varphi_M(t)$: phase signal
+\end{itemize}
+All signals are real-values. Both $a_M$ and $\phi_M$ are lowpass/baseband signals.
+
+Furthermore we can assume $a_M(t) \geq 0\ \forall t$ and 
+$\varphi_M(t) \in (-\pi, \pi]\ \forall t$.
+
+\subsection{Analytical Signal}
+The corresponding analytical signal for a given real valued signal is given by:
+\begin{equation}
+    x^+(t) \laplace X^+(f) = (1 + \text{sgn}(f)) X(f)
+\end{equation}
+thus all negative frequencies are surpressed and positive frequencies are amplified.
+
+\subsection{Equivalent Complex Baseband Signal}
+Using equation \ref{eq:02:srf} and eulers-formula we come to:
+\begin{equation}
+    s_\text{RF}(t) = \sqrt{2} a_M(t) \cos(2\pi f_0 t + \varphi_M(t))
+        = \sqrt{2} \Re\{s(t) e^{j 2 \pi f_0 t}\}
+\end{equation}
+with
+\begin{equation}
+    s(t) = a_M(t) e^{j \varphi_M(t)}
+\end{equation}
+thus we can represent every baseband signal by an \ac{ecb} signal.
+
+This can also be seen as a the (complex) envelope of the RF signal.
+
+\subsection{ECB to RF transformation}
+The transformation is given by shifting/modulating and surpressing the imaginary parts:
+\begin{equation} 
+    x_\text{RF}(t) = \frac{1}{\sqrt{2}} \left(x(t)e^{j 2 \pi f_0 t} + x^*(t) e^{-j 2 \pi f_0 t}\right)
+\end{equation}
+or
+\begin{equation}\label{eq:02:xrf}
+    X_\text{RF}(t) = \frac{1}{\sqrt{2}} \left(X(f-f_0) + X^*(-(f+f_0)\right)
+\end{equation}
+
+\subsection{RF to ECB transformation}
+By solving equation \ref{eq:02:xrf} for $X(f)$ using the Hilbert-Transform we arrive at:
+\begin{equation}
+    X(f) = \frac{1}{\sqrt{2}} (1 + \text{sgn}(f + f_0)) X_\text{RF}(f+f_0)
+        = \frac{1}{\sqrt{2}} X^+_\text{RF}(f+f_0)
+\end{equation}
+or
+\begin{equation}
+    x(t) = \frac{1}{\sqrt{2}} (x_\text{RF}(t) + j\mathcal{H}\{x_\text{RF}(t)\}) 
+        e^{-j 2 \pi f_0 t}
+    = \frac{1}{\sqrt{2}} x_\text{RF}^+ (t) e^{-j 2 \pi f_0 t}
+\end{equation}
+
+\section{The Quadrature Components of ECB Signals}
+\subsection{ECB-Representations}
+\subsubsection{Polar-Form}
+Given an ECB Signal $x$ we can split it into a magnitude and phase term:
+\begin{equation}
+    x(t) = \abs{x(t)} e^{j \arg\{x(t)\}}
+\end{equation}
+
+\subsubsection{Quadrature Components}
+On the other hand it is possible to split the signal in real part (inphase component)
+and imaginary part (quadrature component):
+\begin{equation}
+    x(t) = \Re{x(t)} \Im{x(t)} = x_I(t) + j x_Q(t)
+\end{equation}
+
+\subsection{Quadrature Upconversion}
+Taking the quadrature components for the ECB to RF transformation we get:
+\begin{equation}
+    x_\text{RF}(t) = \sqrt{2}\left(x_I(t) \cos(2\pi f_0 t) - x_Q(t) \sin(2 \pi f_0 t)\right)
+\end{equation}
+
+\subsection{Quadrature Downconversion}
+Using the RF to ECB transformation and the definition of the quadrature components we
+get:
+\begin{eqnarray}
+    x_I(t) &=& \frac{1}{\sqrt{2}} \left(x_\text{RF}(t) \cos(2 \pi f_0 t) + 
+        \mathcal{H}\{x_\text{RF}(t)\} \sin(2 \pi f_0 t)\right)\\ 
+    x_Q(t) &=& \frac{1}{\sqrt{2}} \left(\mathcal{H}\{x_\text{RF}(t)\} \cos(2 \pi f_0 t)
+        - x_\text{RF}(t) \sin(2 \pi f_0 t)\right)
+\end{eqnarray}
+
+For bandpass signals, that are signals with $X_\text{RF}(f)=0, \abs{f} > 2 f_0$,
+the Hilbert-Transform can be replaced by an ideal-low pass filter with cut-off frequency $f_0$.
+
+This leads to
+\begin{equation}
+    X(f) = \sqrt{2} \text{rect}\left(\frac{f}{2 f_0}\right) X_\text{RF}(f+f_0)
+\end{equation}
+or
+\begin{equation}
+    x(t) = \sqrt{2} h_\text{LP}(t) * (x_\text{RF}(t) e^{-j 2 \pi f_0 t})
+\end{equation}
+with $h_\text{LP} \laplace \text{rect}\left(\frac{f}{2 f_0}\right)$.
+
+Thus a simplified quadrature downconversion is given by:
+\begin{eqnarray}
+    x_I(t) &=& \sqrt{2} \left(x_\text{RF}(t) \cos(2\pi f_0 t)\right) * h_\text{LP}(t) \\
+    x_Q(t) &=& -\sqrt{2} \left(x_\text{RF}(t) \sin(2\pi f_0 t)\right) * h_\text{LP}(t)
+\end{eqnarray}
+
+\subsection{LTI Systems and ECB Signals}
+Let the real-valued system $h_\text{RF}(t) \laplace H_\text{RF}(f)$ be given. The 
+corresponding \ac{ecb}-system $h(t)$ with transfer function $H(f)$ is given by:
+\begin{equation}
+    h(t) = \frac{1}{2} \left(h_\text{RF}(t) + j \mathcal{H}\{h_\text{RF}(t)\}\right) e^{-j 2 \pi f_0 t}
+\end{equation}
+or
+\begin{equation}
+    H(f) = \frac{1}{2} \left(1 + \text{sgn}(f + f_0)\right) H_\text{RF}(f+f_0)
+\end{equation}
+
+the real valued system can be recovered from an \ac{ecb} system by:
+\begin{equation}
+    h_\text{RF}(t) = 2 \Re{h(t) e^{j 2 \pi f_0 t}}
+\end{equation}
+or
+\begin{equation}
+    H_\text{RF}(f) = H(f-f_0) + H^*(-(f+f_0))
+\end{equation}
+
+\subsubsection{Quadrature Components}
+Similar to signals the quadrature components can also be defined for systems:
+\begin{eqnarray}
+    h(t) = h_I(t) + j h_Q(t)
+\end{eqnarray}
+
+The sytem response is then given by:
+\begin{equation}
+    y(t) = x(t) * h(t) =
+        (x_I(t) * h_I(t) - x_Q(t) * h_Q(t)) + j(x_I(t) * h_Q(t) + x_Q(t) * h_I(t))
+\end{equation}
+thus it incorporated four real-valued LTI systems.
+
+\section{Stochastic Processes}
+\subsection{Parameters of Stochastic Processes}
+\subsubsection{\acl{pdf}}
+At every timestep $t$ the process $\mathbf{x}(t)$ reduces to a random variable
+$X=\mathbf{x}(t)$ which can be characterized by its \ac{pdf}.
+
+This \ac{pdf} can be described by properties such as mean, variance and power (sum
+of mean and variance).
+
+\subsubsection{\acl{acf}}
+The \ac{acf} describes the dependency of the properties over time:
+\begin{equation}
+    \phi_{xx} (t_1, t_2) = E\{\mathbf{x}(t_1) \cdot \mathbf{x}(t_2)\}
+\end{equation}
+
+\subsubsection{\acl{ccf}}
+Similarly the cross correlation can be defined:
+\begin{equation}
+    \phi_{xy} (t_1, t_2) = E\{\mathbf{x}(t_1) \cdot \mathbf{y}(t_2)\}
+\end{equation}
+
+\subsection{Wide-Sense Stationary}
+A stochastic process is (wide-sense) stationary if:
+\begin{itemize}
+    \item The mean is constant over time
+    \item The \ac{ccf} and thus the \ac{acf} as well depend only on the time difference
+\end{itemize}
+
+As the \ac{acf} only depends on the time difference it can be interpreted as a signal,
+an important property is the fourier transform which is called the \ac{psd}.
+
+The fourier transform of the \ac{ccf} is called cross power spectral density.
+
+\subsection{LTI Systems and Stochastic Processes}
+The following relations hold ($\varphi_{hh}(\tau) = h(\tau) * h*(-\tau)$):
+\begin{eqnarray}
+    \phi_{xy}(\tau) &=& \phi_{xx}(\tau) * h(-\tau) \\
+    \Phi_{xy}(f) &=& \Phi_{xx}(f) \cdot H^*(f) \\
+    \phi_{yx}(\tau) &=& \phi_{xx}(\tau) * h(\tau) \\
+    \Phi_{yx}(f) &=& \Phi_{xx}(f) \cdot H(f) \\
+    \phi_{yy}(\tau) &=& \phi_{xx}(\tau) * \varphi_{hh}(\tau) \\
+    \Phi_{yy}(f) &=& \Phi_{xx}(f) \cdot \abs{H(f)}^2
+\end{eqnarray}
+
+\subsection{Sampling of Stochastic Processes}
+The time discrete \ac{acf} is given by sampling the continuous \ac{acf}.
+
+\subsection{Cyclo-Stationary Stochastic Processes}
+For cyclo-stationary stochastic processes the characteristic properties are not constant
+over time but fluctuate periodically.
+
+For such processes the average \ac{acf} is of interest:
+\begin{equation}
+    \bar{\phi}_{xx}(\tau) = \frac{1}{T} \int_0^T \varphi_{xx}(t+\tau, t) \text{d}t
+\end{equation}
+Similarly we can define the average \ac{psd} as the fourier transform of the average
+\ac{acf}.
+
+\subsection{Stochastic Processes in the \acl{ecb}}
+\subsubsection{Mean}
+The mean in the \ac{ecb} domain is given by
+\begin{equation}
+    m_x(t) = \frac{1}{\sqrt{2}} m_{x_\text{RF}} e^{-j 2 \pi f_0 t}
+\end{equation}
+
+If the RF-Process has non zero mean the \ac{ecb} process has non constant mean and is thus
+not stationary.
+
+\subsubsection{\acl{acf}}
+The \ac{acf} in the \ac{ecb} domain is given by
+\begin{equation}
+    \phi_{xx}(\tau) = \left(\phi_{x_\text{RF} x_\text{RF}} (\tau) + j 
+        \mathcal{H}\{\phi_{x_\text{RF} x_\text{RF}} (\tau)\}\right)
+        e^{-j 2 \pi f_0 \tau}
+\end{equation}
+
+or
+\begin{equation}
+    \Phi_{xx}(f) = (1 + \text{sgn}(f+f_0)) \Phi_{x_\text{RF} x_\text{RF}}(f+f_0)
+\end{equation}
+
+\subsubsection{Existenz of RF-Signal}
+A complex valued, wide-sense stationary process $\mathbf{x}(t)$ is only equivalent
+to a real valued wide-sense stationary process $\mathbf{x}_\text{RF}(t)$ if:
+\begin{itemize}
+    \item The mean is zero
+    \item Real and imaginary part have the same \ac{acf}
+    \item The \ac{ccf} between real and imaginary part is odd
+\end{itemize}
+
