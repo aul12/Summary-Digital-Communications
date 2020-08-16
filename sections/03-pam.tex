@@ -1,0 +1,390 @@
+\chapter{Digital \acl{pam}}
+\section{Basic Principles}
+\subsection{Basic Pulse Shape}
+The basic pulse shape is denoted by $g(t)$. This pulse can be seen as the impulse response
+of the transmit filter.
+
+Important properties:
+\begin{itemize}
+    \item Spectrum of the pulse $G(f) \Laplace g(t)$
+    \item Energy of the pulse:
+        \begin{equation}
+            E_g = \int_{-\infty}^\infty \abs{g(t)}^2 \text{d}t 
+                = \int_{-\infty}^\infty \abs{G(f)}^2 \text{d}f
+        \end{equation}
+\end{itemize}
+
+\subsection{Signal Constellation}
+The signal constellation $\mathcal{A}$ is a set of amplitude coefficients or signal points.
+
+Important properties:
+\begin{itemize}
+    \item $M = \abs{\mathcal{A}}$: cardinality (number of points)
+    \item $R_M = \log_2(M)$: rate of modulation (number of bits)
+\end{itemize}
+
+\subsection{Symbol Period}
+The symbol period (or duration of a modulation interval) $T$ is given via $g(t)$.
+
+It is related to bit duration and rate of modulation by:
+\begin{equation}
+    T = T_b \cdot R_M
+\end{equation}
+
+\subsection{Modulation}
+For every timestep (duration $T$) $R_M$ source symbols are collected from the source
+signal $<q[l]>$ and mapped onto a single signal point $a[k] \in \mathcal{A}$. This
+sequence of signal points $<a[k]>$ is then filtered by the LTI system defined by $g(t)$,
+thus every signal point scales its version of $g(t)$ at the position of the signal point.
+
+The transmit signal is given by:
+\begin{equation}
+    s(t) = \sum_{k=-\infty}^\infty a[k] g(t - k T)
+\end{equation}
+
+\subsection{Baseband and Carrier-Modulated Transmission}
+In baseband no upconversion takes place, thus $s(t)$ must be real. This can be achieved
+by having a real $g(t)$ and only real amplitude coefficients $a[k] \in \mathcal{A}$.
+
+In carrier modulated transmission $s(t)$ is the \ac{ecb} signal. $g(t)$ and
+$a[k] \in \mathcal{A}$ can be arbitrary, in pratice $g(t)$ is often chosen to be real.
+
+By splitting the amplitude components in quadrature and inphase components, i.e.
+$a[k] = a_I[k] + j a_Q[k]$, and assuming a real $g(t)$  we get the RF signal as:
+\begin{equation}
+    s_\text{RF}(t) = \sqrt{2} \left(\sum_{k=-\infty}^\infty a_I[k] g(t-kT)
+        \right) \cos(2 \pi f_c t)
+        - \sqrt{2} \left(\sum_{k=-\infty}^\infty a_Q[k] g(t-kT)\right)
+            \sin(2 \pi f_c t)
+\end{equation}
+
+\section{Average \acl{psd} of \acl{pam} signals}
+As the source sequence is drawn from a wide-sense stationary process the ampltitude
+coefficients are drawn from a wide-sense stationary process as well. Thus the
+\ac{acf} is given by:
+\begin{equation}
+    \phi_{aa}[\kappa] = E\{a[k + \kappa] a^*[k]\}
+\end{equation}
+and the \ac{psd} is given by ($z$-transform on the unit circle):
+\begin{equation}
+    \Phi_{aa}(e^{j 2 \pi f T}) = \sum_{\kappa = -\infty}^\kappa \phi_{aa}[\kappa] e^{-j 2 \pi f T \kappa}
+\end{equation}
+
+\subsection{Average \acl{acf} of $s(t)$}
+Due to the clocking $s(t)$ is drawn from a cyclo stationary process.
+
+The average \ac{acf} is given by:
+\begin{equation}
+    \bar{\phi}_{ss}(\tau) = \frac{1}{T} \int_0^T E\{s(t+\tau)s*(t)\} \text{d}t
+\end{equation}
+by substituting $s$ with the definitions we arrive at:
+\begin{equation}
+    \bar{\phi}_{ss}(\tau) =  \frac{1}{T} \sum_{\kappa} \phi_{aa}[\kappa] \varphi_{gg}(\tau - \kappa T)
+\end{equation}
+with
+\begin{equation}
+    \varphi_{gg}(\tau) = g(\tau) * g^*(-\tau)
+\end{equation}
+
+\subsection{Average \acl{psd} of $s(t)$}
+Taking the average-\ac{psd} as the fourier transform of the average-\ac{acf} we get:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) = \Phi_{aa}(e^{j 2 \pi f T}) \frac{\abs{G(f)}^2}{T}
+\end{equation}
+
+\subsection{Uncoded Transmission}
+For uncoded transmission we assume stastically independent and equally
+distributed source symbols $q[l]$. Thus the signal points keep these properties.
+This simplifies the \ac{acf}:
+\begin{equation}
+    \phi_{aa}[\kappa] = E\{a[k+\kappa]a^*[k]\} =
+    \begin{cases}
+        \sigma_a^2 + \abs{m_a}^2 & \kappa = 0 \\
+        \abs{m_a}^2 & \text{else}
+    \end{cases}
+\end{equation}
+with $\sigma_a^2$ and $m_a$ as mean and variance respectively.
+
+The \ac{psd} is then given by:
+\begin{equation}
+    \Phi_{aa}(e^{j 2 \pi f T}) =
+        \sigma_a^2 + \frac{\abs{m_a}^2}{T} \sum_{l=-\infty}^\infty \delta(f - \frac{l}{T})
+\end{equation}
+
+The average \ac{psd} of uncoded \ac{pam} is then given by:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) =
+        \sigma_a^2 \frac{\abs{G(f)}^2}{T} + \abs{m_a}^2\frac{\abs{G(f)}^2}{T^2} \sum_{l=-\infty}^\infty \delta(f - \frac{l}{T})
+\end{equation}
+
+\subsection{Average transmit power}
+For zero mean amplitude coefficients $m_a=0$ we get:
+\begin{itemize}
+    \item Average transmit power:
+        \begin{equation}
+            S_S = \sigma_a^2 \frac{E_g}{T}
+        \end{equation}
+    \item Average energy per symbol:
+        \begin{equation}
+            E_S = S_S \cdot T = \sigma_a^2 E_g
+        \end{equation}
+    \item Average energy per bit:
+        \begin{equation}
+            E_b = \frac{E_s}{R_M}
+        \end{equation}
+\end{itemize}
+
+For $m_a \neq 0$ the calculations are more complicated, for a $\sqrt{\text{Nyquist}}$
+pulse we get the average transmit power as:
+\begin{equation}
+    S_S = (\sigma_a^2 + \abs{m_a}^2) \frac{E_g}{T}
+\end{equation}
+
+\section{Choice of the Signal Constellation}
+\subsection{\acl{ask}}
+In baseband transmission the constellation has to be real valued, thus signal points
+on the real axis are chosen.
+
+There are two versions of \ac{ask}:
+\begin{itemize}
+    \item In bipolar \ac{ask} the signal points are spaced symmetrical
+    
+        The signal constellation is given by $\mathcal{A} = \{\pm 1, \pm 3, \ldots, \pm (M-1)\}$.
+
+        Mean and variance are given by:
+        \begin{eqnarray}
+            m_a &=& 0 \\
+            \sigma_a^2 &=& \frac{M^2 -1}{3}
+        \end{eqnarray}
+    \item In unipolar \ac{ask} the signal points are only on the positive axis
+
+        The signal constellation is given by $\mathcal{A} = \{0, 2, \ldots, 2 \cdot (M-1)\}$
+
+        Mean and variance are given by:
+        \begin{eqnarray}
+            m_a &=& M-1 \\
+            \sigma_a^2 &=& \frac{M^2 -1}{3}
+        \end{eqnarray}
+\end{itemize}
+
+\subsection{\acl{psk}}
+\ac{psk} yields signal points of constant magnitude. The signal constellation is given
+by:
+\begin{equation}
+    \mathcal{A} = \{e^{j 2 \pi \frac{m-1}{M}} | m \in \{1, \ldots, M\}\}
+\end{equation}
+Mean and variance are given by:
+\begin{eqnarray}
+    m_a &=& 0 \\
+    \sigma_a^2 &=& 1
+\end{eqnarray}
+
+\subsection{Digital \acl{qam}}
+For \ac{qam} the signal points are spaced regularly on the complex plane.
+If $M=2^m$ is a square number (i.e. $m$ is even), the boundary of the constellation
+is square, thus such constellations are called square constellation. Otherwise
+signals points in the corner are missing, such constellations are refered to as cross
+constellations.
+
+For square constellation mean and variance are given by:
+\begin{eqnarray}
+    m_a &=& 0 \\
+    \sigma_a^2 &=& \frac{2 (M-1)}{3}
+\end{eqnarray}
+
+\section{Choice of the Basis Pulse Shape}
+\subsection{Optimum Receive Filter}
+The receive signal is given by:
+\begin{equation}
+    r(t) = s(t) + n(t)
+\end{equation}
+For AWGN-Channels $n(t)$ is complex valued, white Gaussian noise with \ac{psd} $N_0$.
+
+General setup for the receiver:
+\begin{enumerate}
+    \item The receive signal $r(t)$ is filtered with $h_R(t)$
+    \item The filtered signal is sampled in order to obtain decision variables $d[k]$
+    \item Decisions are taken based on $d[k]$, estimates of the amplitude
+        coefficients $\tilde{a}[k]$ are generated (i.e. inverse mapping)
+\end{enumerate}
+
+We optimized the \ac{snr} at the receiver at detection time $T_d$, it is given by:
+\begin{equation}
+    \text{SNR}_d = \frac{\abs{\tilde{d}(T_d)}^2}{\sigma_{n_d}^2}
+\end{equation}
+the useful signal is given by
+\begin{equation}
+    \tilde{d}(T_d) = g(t) * h_R(t) \vert_{t=T_d} = \int_{-\infty}^\infty G(f) H_R(f)
+        e^{j 2 \pi f T_d} \text{d}f
+\end{equation}
+and the noise power by
+\begin{equation}
+    \sigma_{n_d}^2 = \frac{N_0}{2} \int_{-\infty}^\infty \abs{H_R(f)}^2 \text{d}f
+\end{equation}
+
+thus the \ac{snr} is bounded by:
+\begin{equation}
+    \text{SNR}_d \leq \frac{E_g}{N_0/2}
+\end{equation}
+the equality is obtained if $\bar{H}_R(f) = {(H_R(f) e^{j 2 \pi f T_d})}^*$ is a multiple
+of $G(f)$.
+
+Thus the optimum receive filter is given by the matched filter:
+\begin{equation}
+    h_R(t) = \gamma g^*(T_d -t)
+\end{equation}
+or
+\begin{equation}
+    H_R(f) = \gamma G^*(f) e^{-j 2 \pi f T_d}
+\end{equation}
+
+\subsubsection{Detection Signal}
+The detection signal is given by
+\begin{equation}
+    \tilde{d}(t) = \gamma \varphi_{gg}(t- T_d)
+\end{equation}
+at the sampling time we get:
+\begin{equation}
+    \tilde{d}(T_d) = \gamma E_b
+\end{equation}
+
+The \ac{acf} of the AWGN-\ac{ecb}-noise after the matched filter is given by:
+\begin{equation}
+    \phi_{n_d n_d}(\tau) = N_0 \gamma^2 \varphi_{gg}(\tau)
+\end{equation}
+
+and thus the noise power is
+\begin{equation}
+    \varphi_{n_d}^2 = N_0 \gamma^2 \varphi_{gg}(0)
+\end{equation}
+
+\subsubsection{Optimum receive filter}
+The receive filter is parameterized by $T_d$, the receive delay. We will assume $T_d=0$,
+in applications $T_d > 0$ so that the receive filter is causal.
+
+\subsection{\acl{isi} Free Transmission - The Nyquist Criterion}
+When considering multiple symbols the receive signal is given by:
+\begin{equation}
+    \tilde{d}[k] = \gamma \sum_\kappa a[\kappa] \varphi_{gg}((k - \kappa) T)
+\end{equation}
+
+to avoid \ac{isi} $\varphi_{gg}$ must fulfill the Nyquist criterion:
+\begin{equation}
+    \varphi_{gg}(\lambda T) =
+    \begin{cases}
+        E_g & \lambda = 0 \\
+        0 & \lambda \in \mathbb{Z} \setminus \{0\}
+    \end{cases}
+\end{equation}
+if $\varphi_{gg}$ fulfills the Nyquist criterion we call $g$ a $\sqrt{\text{Nyquist}}$-
+Pulse. This is also called temporal orthogonality.
+
+furthermore to achieve unit gain we get:
+\begin{equation}
+    \gamma = \frac{1}{E_g}
+\end{equation}
+
+the \ac{acf} of the noise is given by:
+\begin{equation}
+    \phi_{nn}[\kappa] =
+    \begin{cases}
+        \frac{N_0}{E_g} & \kappa = 0 \\
+        0 & \kappa \in \mathbb{Z} \setminus \{0\}
+    \end{cases}
+\end{equation}
+as a result we can model the channel using discrete time AWGN noise with
+\begin{equation}
+    \sigma_n^2 = \frac{N_0}{E_g}
+\end{equation}
+
+\subsubsection{The Nyquist Criterion in Frequency Domain}
+The periodic continuation of the spectrum $\abs{G(f)}^2$ of a time function 
+$\varphi_{gg}(t)$ which fulfills the first Nyquist Criterion sums up to a constant:
+\begin{equation}
+    \sum_{\mu=-\infty}^\infty \abs{G(f - \frac{\mu}{T})}^2 = E_g T
+\end{equation}
+
+\subsubsection{Bandwidth}
+With $R_T = \frac{R_m}{T}$ (datarate) and $\Gamma = \frac{R_T}{B_\text{RF}}$ 
+(spectral effiency) we get ($\alpha$ roll-off factor):
+\begin{itemize}
+    \item Baseband transmission
+        \begin{eqnarray}
+            B_\text{RF} &=& \frac{1 + \alpha}{2 T} \\
+            \Gamma &=& \frac{2 R_m}{1 + \alpha}
+        \end{eqnarray}
+    \item Carrier-Modulated Transmission
+        \begin{eqnarray}
+            B_\text{RF} &=& \frac{1 + \alpha}{T} \\
+            \Gamma &=& \frac{R_m}{1 + \alpha} 
+        \end{eqnarray}
+\end{itemize}
+
+\subsection{Eye Pattern}
+The depiction of all sample functions of the cyclo-stationary process yields a periodic
+pattern, the so called eye diagram. The horizontal opening is an indicator for the
+robustness against timing problems, the vertical opening is an indicator for the robustness
+against noise.
+
+\section{Detection of the PAM Signal Points}
+We consider the discrete time model:
+\begin{equation}
+    d[k] = a[k] + n[k]
+\end{equation}
+as we consider uncoded transmission we can do this symbol by symbol and thus drop the 
+time index $k$.
+
+\subsection{\acl{map} Strategy}
+Decide in favor of the signal point $a \in \mathcal{A}$ which has the largest probability
+given the observation of $d$ (\ac{map}):
+\begin{equation}
+    \hat{a} = \argmax_{a\in \mathcal{A}} \CPr{a}{d}
+\end{equation}
+
+\subsection{\acl{ml} Strategy}
+For equiprobable symbols the \ac{map} strategy simplifies to the \ac{ml} strategy:
+\begin{equation}
+    \hat{a} = \argmax_{a \in \mathcal{A}} f_d(d|a)
+\end{equation}
+for AWGN channels this is equivalent to minimizing the (squared) euclidean distance
+between observation $d$ and hypothesis $\hat{a}$.
+
+\section{Bit and Symbol Error Ratio}
+The \ac{ser} is given by:
+\begin{equation}
+    \Pr{\hat{a} \neq a} = \int_{d \notin \mathcal{G}_a} f_d(d|a) \text{d}d
+\end{equation}
+
+The average \ac{ser} is given by (assuming equiprobable symbols):
+\begin{equation}
+    \text{SER} = \frac{1}{M} \sum_{a \in \mathcal{A}} \Pr{\hat{a} \neq a}
+\end{equation}
+
+\subsection{Normalized Minimum Squared Euclidean Distance of a Signal Constellation}
+The normalized minimum squared euclidean distance of a signal constellation
+$\mathcal{A}$ is given by:
+\begin{equation}
+    d_\text{min}^2 = \frac{E_g}{2 E_b} \min{}_{a_i, a_j \in \mathcal{A}, a_i \neq a_j}
+        \abs{a_i - a_j}^2
+\end{equation}
+
+\subsection{\acl{ser} of \acl{ask}}
+The average \ac{ser} is given by;
+\begin{equation}
+    \text{SER} = 
+        \frac{2 \cdot (M-1)}{M} Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+
+\subsection{\acl{ser} for general \acl{pam} schemes}
+An upper bound on the \ac{ser} of digital \ac{pam} is given by:
+\begin{equation}
+    \text{SER} \leq N_\text{min} Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+with $N_\text{min}$: the average number of nearest-neighbor signal points.
+
+\subsection{Approximation of the Bit-Error-Rate}
+Assuming gray labeling and a reasonably low error rate we arrive at:
+\begin{equation}
+    \text{BER} \approx \frac{N_\text{min}}{\log_2(M)} Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+
