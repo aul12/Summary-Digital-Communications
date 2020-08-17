@@ -1,0 +1,240 @@
+\chapter{Variants of \acl{pam} Transmission Schemes}
+\section{Offset \acl{qam}}
+\subsection{Crest Factor of \acl{pam} Transmit Signals}
+The crest factor of an \ac{ecb} signal $s(t)$ with average power $S_S$ is given by:
+\begin{equation}
+    \zeta = \frac{\max_{\forall t} \abs{s(t)}}{\sqrt{S_S}}
+\end{equation}
+
+The \ac{par} can be defined as:
+\begin{equation}
+    \text{PAR} = \zeta^2
+\end{equation}
+
+Due to the modulation the RF signals has a $\sqrt{2}$/$2$ lower crest factor/\ac{par}
+than the \ac{ecb} signal. We will only consider the \ac{ecb} signal.
+
+We can also define the crest factor of the constellation:
+\begin{equation}
+    \zeta_a = \frac{\max_{a \in \mathcal{A}} \abs{a}}{\sqrt{E\{\abs{a}^2\}}}
+\end{equation}
+and of the basic pulse shape:
+\begin{equation}
+    \zeta_g = \frac{\max_{\forall t} \sum_k \abs{g(t-kT)}}{\sqrt{E_g /T}}
+\end{equation}
+we can show that:
+\begin{equation}
+    \zeta \leq \zeta_a \cdot \zeta_g
+\end{equation}
+
+\subsection{Characterization of Power Amplifiers}
+The distortion of an amplifier can be modeled by:
+\begin{equation}
+    s'(t) = A\left(\frac{\abs{s(t)}}{s_0}\right) 
+        e^{j \left(\arg(s(t)) + P\left(\frac{\abs{s(t)}}{s_0}\right)\right)}
+\end{equation}
+with:
+\begin{itemize}
+    \item $s_0$: Reference amplitude
+    \item $A$: AM/AM characteristics
+    \item $P$: AM/PM characteristics
+\end{itemize}
+
+\subsection{Offset \acl{qam}}
+The \ac{qam} transmitter is modified to delay the signal in the quadrature branch
+by $T/2$. The purpose is to lower the fluctuations of the envelope and thus achieve
+a lower crest factor:
+\begin{equation}
+    \zeta_g = \frac{\max_{\forall t} \sqrt{{\left(\sum_k \abs{g(t-kT)}\right)}^2
+        + {\left(\sum_k \abs{g(t-kT - T/2)}\right)}^2}}{\sqrt{2 E_g / T}}
+\end{equation}
+
+This results from the fact that the inphase and quadrature part now do not change
+at the same time but shifted relative to each other. Thus only the real or the 
+imaginary part changes, the phasor trajectory can not cross the origin.
+
+\section{\acl{msk}}
+Using offset \ac{qam} zero crossings are avoided but the envelope is not constant.
+For 4-\ac{qam} with the pulse shape:
+\begin{equation}
+    g(t) = \sqrt{\frac{2 E_g}{T}} \cos\left(\pi \frac{t}{T}\right) 
+        \text{rect}\left(\frac{t}{T}\right)
+\end{equation}
+we get a constant envelope, this is called \ac{msk}.
+
+Instead of viewing this as a special case of offset \ac{qam} we can also see this as
+a \ac{pam} scheme applying two different pulses for the inphase component ($g(t)$) and
+the quadrature component ($g(t-T/2)$).
+
+The average \ac{psd} is given by:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) = \frac{16 E_g}{\pi^2} \frac{\cos^2(\pi f T)}{{(1-{(2fT)}^2)}^2}
+\end{equation}
+thus it is not bandlimited.
+
+Instead of specifying the bandwidth as infinity a $B_{X\%}$ bandwidth is given,
+i.e. the bandwidth that contains $X\%$ of the transmit power:
+\begin{equation}
+    \int_{-B_{X\%}}^{B_{X\%}} \bar{\Phi}_{ss}(f) \text{d}f =
+        \frac{X}{100} \int_{-\infty}^\infty \bar{\Phi}_{ss}(f) \text{d}f
+\end{equation}
+
+For \ac{msk} we get ($R_T = 1/T_b$):
+\begin{equation}
+    B_{99\%} = 1.11 R_T
+\end{equation}
+and thus
+\begin{equation}
+    \Gamma_{99\%} = \frac{R_T}{B_{99\%}} = 0.9 \frac{\text{bit}/\text{s}}{\text{Hz}}
+\end{equation}
+
+For normal \ac{qam} with $\alpha=0$ we have $\Gamma = 2$, thus the spectral efficiency of
+\ac{msk} is approximatly half the spectral efficiency of \ac{qam}. 
+
+\subsection{Equivalenz Between \acl{msk} and Binary Frequency Modulation}
+\ac{msk} can also be seen as binary frequency modulation with double the frequency
+(to achieve the same data rate).
+
+\section{\acl{gmsk}}
+\ac{msk} guarantees a constant envelop but yields an infinite bandwidth and thus poor
+spectral effiency. This is a result of the discontinous instantaneous frequency.
+To solve this issue the instantaneous frequency is smoothened in
+\ac{gmsk} using a gaussian filter, thus no frequency hard keying occurs.
+
+The filter is given by:
+\begin{equation}
+    h_G(t) = \frac{1}{\sqrt{2 \pi T_b^2 \tau^2}} e^{-\frac{(t/T_b)^2}{(2\tau)^2}}
+\end{equation}
+with $\tau = \frac{\sqrt{\log(2)}}{2 \pi B_b T_b}$ or
+\begin{equation}
+    H_G(f) = e^{-(f/B_b)^2 \log(2) /2}
+\end{equation}
+$B_B$ is the bandwidth parameter that can be tuned, GSM chooses $T_b B_b = 0.3$.
+
+As the operations are linear $h_G$ can be combined with $g_F$.
+
+\subsection{Power and Bandwidth Efficiency of \acl{gmsk}}
+As \ac{gmsk} is a nonlinear scheme we can not directly apply the calculations of the
+previous chapter, instead we have to do numerical simulations.
+
+\subsection{Receiver}
+Optimal receivers for \ac{gmsk} are not part of the course. Suboptimal receivers can be
+designed when considering \ac{gmsk} as \ac{msk} which is a special case of offset
+\ac{qam}, thus a \ac{pam} receiver can be used.
+
+\section{Non-Coherent PAM Schemes}
+For frequency/phase errors the receive signal is given by:
+\begin{equation}
+    r(t) = s(t) \cdot e^{j (2 \pi f_\Delta t + \varphi_\Delta)}
+\end{equation}
+with
+\begin{itemize}
+    \item $f_\Delta$: The frequency error
+    \item $\varphi_\Delta$: The phase error
+\end{itemize}
+
+\subsection{PAM Scheme with phase error}
+The end-to-end discrete time receive signal is given by:
+\begin{equation}
+    d[k] = a[k] e^{j \varphi_\Delta} + n[k]
+\end{equation}
+
+\subsection{Non-Coherent Demodulation of Unipolar ASK}
+The phase can not convey any information, thus all information needs to be in the
+amplitude. This is the case for unipolar ASK. The simplest form of unipolar \ac{ask}
+is binary unipolar \ac{ask} or \ac{ook}.
+
+In non coherent reception the decision is based on $\abs{d}$, thus the decision
+boundary is a circle.
+
+\subsubsection{Error Probability}
+For the error probability we need to find the radius $\rho$ which minimizes the
+bit error rate (which is equal to the symbol error rate). For this the individual errors
+need to be calculated individually, as the problem is not symmetric.
+From the individual error rates the average error rate can be calculated, from
+this the minimum error rate can be calculated as a function of the \ac{snr}.
+
+In practice $\rho=1$ is a good choice. An upper bound of the error probability
+using $\rho=1$ is given by:
+\begin{equation}
+    \text{BER} < e^{-\frac{E_b}{2 N_0}}
+\end{equation}
+
+\subsubsection{Non-Coherent Demodulation of $M$-ary Unipolar ASK}
+The error rate can be generalized to $M$-ary ASK:
+\begin{equation}
+    \text{SER} < e^{-\frac{E_g}{N_0}} = e^{-d_\text{min}^2 \frac{E_b}{2 N_0}}
+\end{equation}
+when assuming Gray labeling the \ac{ber} is given by:
+\begin{equation}
+    \text{BER} \approx \frac{1}{\log_2(M)} \text{SER}
+\end{equation}
+
+\subsubsection{Comparison with Coherent Demodulation}
+The power effiency of non coherent \textbf{uni}polar schemes is up to
+6dB worse than the effiency of coherent \textbf{bi}polar schemes. When comparing
+unipolar coherent with non coherent transmission nearly no difference exists.
+
+\subsection{\acl{dpsk}}
+Options to reduce phase ambiguity:
+\begin{itemize}
+    \item (Fixed) synchronization sequence
+    \item Differential Encoding
+\end{itemize}
+
+\subsubsection{Differential $M-$-ary PSK}
+We can define two different (but equivalent) transmitter structures. 
+$b[k] \in \{0, \ldots, M-1\}$ is a single symbol represented by an integer.
+
+\begin{itemize}
+    \item Phase based:
+        \begin{equation}
+            a[k] = a[k-1] \cdot e^{j 2 \pi \frac{b[k]}{M}}
+        \end{equation}
+    \item Index based:
+        \begin{equation}
+            a[k] = e^{j 2 \pi \frac{m[k]}{M}}
+        \end{equation}
+        with
+        \begin{equation}
+            m[k] = (m[k-1] + b[k]) \mod M
+        \end{equation}
+\end{itemize}
+
+From the two transmitter architectures two (not equivalent) receiver architectures can
+be derived.
+
+\subsubsection{\acl{dcpsk} Demodulator}
+The \ac{dcpsk} demodulator consists of normal $M$-ary \ac{psk} receiver followed by
+differentiation.
+
+The \ac{ser} is given by:
+\begin{equation}
+    \text{SER}_\text{DCPSK} = 2 \text{SER}_\text{PSK} - 1.5 {\text{SER}_\text{PSK}}^2
+\end{equation}
+
+\subsubsection{\acl{dpsk} Demodulator}
+The DPSK demodulator consists of a matched filter followed by the differentiantial
+demodulation and then a $M$-PSK threshold device.
+
+The \ac{ber} for binary \ac{dpsk} is given by:
+\begin{equation}
+    \text{BER}_\text{DPSK} = \frac{1}{2} e^{-\frac{E_b}{N_0}}
+\end{equation}
+\ac{dpsk} has roughly the same power efficiency as coherent, binary \ac{psk}.
+
+For non binary \ac{dpsk} we get:
+\begin{equation}
+    \text{SER}_\text{DPSK} < 1 + Q_M(X_1, X_2) - Q_M(X_2, X_1)
+\end{equation}
+with
+\begin{eqnarray}
+    X_1 &=& \sqrt{\log_2(M)\left(1-\sin\left(\frac{\pi}{M}\right)\right)\frac{E_b}{N_0}} \\
+    X_2 &=& \sqrt{\log_2(M)\left(1+\sin\left(\frac{\pi}{M}\right)\right)\frac{E_b}{N_0}} 
+\end{eqnarray}
+
+for $M$ and $E_b/N_0$ sufficiently large this can be simplified to:
+\begin{equation}
+    \text{SER}_\text{DPSK} \approx 2 Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0} / 2}\right)
+\end{equation}
+which is a loss of 3dB when compared to coherent \ac{psk}.
