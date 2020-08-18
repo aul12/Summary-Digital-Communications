@@ -1,0 +1,299 @@
+\chapter{Signal Space Representation}
+\section{Coding and Modulation}
+\subsection{Modulation}
+The modulation in a digital communication scheme is defined as the representation
+of a sequence of signal numbers $m[k] \in \{0, \ldots, M-1\}, \in \mathbb{Z}$ via
+a continuous time signal $s(t)$ in such a way that:
+\begin{itemize}
+    \item Each signal number $m[k]$ is mapped onto a signal element per modulation
+        interval $T$ independent of preceeding and subsequent signal numbers.
+    \item The signal elements are taken from the signal set
+        \begin{equation}
+            S = \{s_0(t), s_1(t), \ldots, s_{M-1}(t)\}
+        \end{equation}
+    \item The transmit signal (\ac{ecb} signal) is given by the superposition
+        of all signal elements
+\end{itemize}
+
+\subsubsection{Constraints on the Signal Elements}
+Similar to \ac{pam} the signal elements need to fulfill a temporal orthogonality
+criterion in order to avoid \ac{isi}:
+\begin{equation}
+    \int_{-\infty}^\infty s_i(t + \lambda T) \cdot s_j^* (t) \text{d}t
+    = \begin{cases}
+        E_{ij} & \lambda = 0 \\
+        0 & \lambda \in \mathbb{Z} \setminus \{0\} 
+    \end{cases}
+    \ \forall i, j \in \{0, \ldots, M-1\}
+\end{equation}
+
+\subsection{Encoding}
+In the encoding process, the (binary) information symbols from the source are converted
+into signal numbers. Thereby, redundancy may be introduced and dependencies between
+successive symbols may be introduced.
+
+The encode can be splitted into an channel encoder and a mapper.
+
+\subsubsection{Channel Coding}
+By encoding we define the bijective mapping of words of length $K$ of binary source symbols
+(bits) onto words of length $N$ of code symbol from an $M_C$-ary code symbol alphabet
+$\mathcal{C}$ with $2^K \leq M_C^N$ at time step $\mu$:
+\begin{equation}
+    q[\mu] = [q_0, \ldots, q_{K-1}] \to c[\mu] = [c_0, \ldots, c_{N-1}]
+\end{equation}
+
+For $2^k < M_C^N$ redundancy is introduced, thereby error detection or correction is enabled.
+
+If the rule for encoding is time invariant and without memory a block code is present,
+otherwise a trellis code is given.
+
+Decoding is the estimation of $\hat{q}$ given a block of decision variables
+\begin{equation}
+    d = [d_0, \ldots, d_{K-1}]
+\end{equation} 
+
+Important parameters are:
+\begin{itemize}
+    \item Code length: $N$
+    \item Code symbol alphabet $\mathcal{C} = \{c^{(1)}, \ldots, c^{(M_C)}\}$
+    \item Code rate: $R_C = \frac{K}{N}$
+\end{itemize}
+
+\subsubsection{Equivalent Coding and Modulation}
+If a channel adds distortion the signal elements may not fulfill the temporal
+orthogonality constraint. The influence of the channel can be modelled by an
+equivalent encoding and equivalent signal elements, which are chosen so
+that the channel can be modelled as an AWGN channel. For the receiver design
+the equivalent encoding and equivalent signal elements are considered.
+
+\subsubsection{Average \acl{psd}}
+For uncoded transmission (equiprobable signal elements, statistically independent)
+the average \ac{psd} is given by:
+\begin{equation}
+    \bar{\Phi}_{ss} = \frac{1}{T} \left(\bar{P}(f) - \abs{\bar{S}(f)}^2\right)
+        + \frac{1}{T^2} \abs{\bar{S}(f)}^2 \sum_{\mu=-\infty}^\infty
+        \delta \left(f - \frac{\mu}{T}\right)
+\end{equation}
+with:
+\begin{itemize}
+    \item The average \ac{psd}:
+        \begin{equation}
+            \frac{1}{M} \sum_{i=0}^{M-1} \abs{S_i(f)}^2
+        \end{equation}
+    \item The average signal:
+        \begin{equation}
+            \bar{S}(f) = \frac{1}{M} \sum_{i=0}^{M-1} S_i(f)
+        \end{equation} 
+\end{itemize}
+
+\section{Signal Representation via Orthonormal Basis Functions}
+For the set of signal elements $s_i$ we can define an orthonormal basis:
+\begin{equation}
+    \mathcal{G} = \{g_0(t), \ldots, g_{D-1}(t)\}
+\end{equation}
+$D \in \mathbb{N}$ dimensionality of the modulation scheme. A signal can thus be 
+represented by the $D$ factors that form the signal based on $\mathcal{G}$.
+
+If we consider $N$ signal elements the signal $s(t)$ is given by $D \times N$ scalar
+factors. Thus it can be represented by a matrix:
+\begin{equation}
+    s(t) \leftrightarrow 
+    \begin{pmatrix}
+        s_{0,m[0]} & \cdots  & s_{0,m[N-1]} \\
+        \vdots & & \vdots \\
+        s_{D-1,m[0]} & \cdots & s_{D-1, m[N-1]}
+    \end{pmatrix}
+\end{equation}
+
+We can see a general digital transmission as $D$ parallel \ac{pam} schemes.
+
+\subsubsection{Energy and Signal Space}
+Energy in time domain corresponds to squared norm in signal space.
+\begin{equation}
+    E_i = E_g \norm{s_i}^2
+\end{equation}
+
+Furthermore the squared euclidean distance between two points in signal space is 
+proportional to the energy of the difference of the corresponding signals.
+
+\section{Gram-Schmidt Procedure}
+For a compact matrix vector notation we define:
+\begin{itemize}
+    \item Vector of basis functions:
+        \begin{equation}
+            g(t) = [g_0(t), \ldots, g_{D-1}(t)]
+        \end{equation}
+    \item Vector of signal elements:
+        \begin{equation}
+            s(t) = [s_0(t), \ldots, s_{M-1}(t)]
+        \end{equation}
+    \item Matrix of linear factors ($D \times M$):
+        \begin{equation}
+            S = 
+            \begin{pmatrix}
+                s_{0,m[0]} & \cdots  & s_{0,m[N-1]} \\
+                \vdots & & \vdots \\
+                s_{D-1,m[0]} & \cdots & s_{D-1, m[N-1]}
+            \end{pmatrix}
+        \end{equation}
+    \item Matrix of orthogonalization factors ($M \times D$): $G$
+\end{itemize}
+
+With these definitions the following relations hold:
+\begin{itemize}
+    \item Basis functions to signal elements:
+        \begin{equation}
+            s(t) = g(t) S
+        \end{equation}
+    \item Signal elements to basis functions:
+        \begin{equation}
+            g(t) = s(t) G
+        \end{equation}
+    \item Additionally we get:
+        \begin{equation}
+            S G = I_{D \times D}
+        \end{equation}
+\end{itemize}
+
+Gram-Schmidt (without normalization):
+\begin{eqnarray*}
+    g_0 &:=& s_0 \\
+    g_k &:=& s_k - \sum_{l=0}^{k-1} \frac{<g_l, s_k>}{<g_l, g_l>} g_l
+\end{eqnarray*}
+
+\section{Representation of the Receive Signal in Signal Space}
+Like seen above the general scheme can be seen as $D$ \ac{pam} schemes, a bank of 
+$D$ \ac{pam} matched filters can be used. Due to the orthogonality constraint
+no \ac{isi} occurs.
+
+The noise in the $j$-th branch is given by:
+\begin{equation}
+    n_j[k] = \frac{1}{E_g} \int_{-\infty}^\infty n(t) g_j^*(t-kT) \text{d}t
+\end{equation}
+
+When calculating the cross correlation over both time and branch one can see that
+the noise is white white regards to time and dimension.
+
+To summarize: digital communications be be described by sending a point in $D$-dimensional
+space and receiving a noise version $d[k]$ thereof. The variance of the white
+gaussian noise is given by $\sigma_n^2 = \frac{N_0}{E_g}$.
+
+\section{Maximum-Likelihood Detection and Decoding}
+\subsection{Vector Demodulator}
+Assuming all sequences are equiprobable then the optimum decision rule is given
+by the \ac{mlsd} strategy:
+\begin{equation}
+    <\hat{m}[k]> = \argmax_{\forall <m[k]> \in \mathcal{M}\{\mathcal{C}\}} f_{<d>} (<d> | <s_m>)
+\end{equation}
+
+similar to \ac{pam} this is equivalent to minimization of the squared euclidean distance,
+per dimension.
+
+\subsection{Normalized Minimum Squared Euclidean Distance}
+The normalized minimum squared euclidean distance of a digital communication scheme
+is given by:
+\begin{equation}
+    d_\text{min}^2 = \frac{1}{2 E_b} \min_{\forall s^{(m)}(t), s^{(\mu)}(t),
+        s^{(m)}(t) \neq s^{(\mu)}(t)} \int_{-\infty}^\infty
+        \abs{s^{(m)}(t) - s^{(\mu)}(t)}^2 \text{d}t
+\end{equation}
+Note: the factor $\frac{1}{2}$ is related to the factor of $\frac{N_0}{2}$ for gaussians
+and has historical reasons.
+
+\subsection{Symbol Error Probability}
+Similar to \ac{pam} a upper bound of the \ac{ser} can be given:
+\begin{equation}
+    \text{SER} \leq N_\text{min} Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+with
+\begin{itemize}
+    \item $N_\text{min}$: average number of nearest neighbour signal points
+    \item $\frac{E_b}{N_0}$: energy per bit to noise power spectral density ratio
+    \item $d_\text{min}^2$: normalized squared euclidean distance of the scheme
+\end{itemize}
+
+\subsection{\acl{mlsd} for Time-Varying Channels}
+Assume the receive signal is scaled by the channel (here $D=1$):
+\begin{equation}
+    d'[k] =h[k] a[k] + n[k]
+\end{equation}
+This can be compensated by scaling the received signal, but this yields a time variant
+noise variance. For this \ac{mlsd} is given by:
+\begin{equation}
+    <\hat{m}[k]> = \argmin_{\forall <m[k]> \in \mathcal{M}\{\mathcal{C}\}}
+        \sum_k \abs{h[k]}^2 \sum_{j=0}^{D-1} \abs{d_j[k] - s_{j,m[k]}}^2
+\end{equation}
+I.e. the signals contribution is weighted by $h[k]$.
+
+\subsection{Correlation Receiver}
+\ac{mlsd} can also be performed on the individual signal elements:
+\begin{equation}
+    <\hat{m}[k]> = \argmax_{\forall <m[k]> \in \mathcal{M}\{\mathcal{C}\}}
+        \lambda_{m[k]}[k]
+\end{equation}
+with:
+\begin{equation}
+    \lambda_{m[k]}[k] = 2 \Re{K_m[k]} - \frac{E_m}{E_g}
+\end{equation}
+$K_m[k]$ is the result of the matched filter:
+\begin{equation}
+    K_m[k] = \left(r(t) * \frac{1}{E_g} s^*_m(-t)\right) \vert_{t=kT}
+\end{equation}
+
+\section{Non-Coherent Demodulation}
+We assume a neglectable frequency error $f_\Delta$ (in mobile scenarios some form of
+Doppler effect compensation is necessary). The phase error $\varphi_\Delta$.
+
+The receive signal (with constant phase error is given by):
+\begin{equation}
+    r(t) = s(t) e^{j \varphi_\Delta} + n(t)
+\end{equation}
+
+\subsection{Optimum Non-Coherent Modulation}
+We only consider symbol by symbol detection, thus we drop the time index $k$.
+
+The \ac{ml} detector is given by:
+\begin{equation}
+    \hat{m} = \argmax_{\forall m \in \{0, \ldots, M-1\}} \left(
+        k_\text{nc}\left(2 \frac{E_g}{N_0}\abs{K_m}\right) -
+        \frac{E_m}{N_0}\right)
+\end{equation}
+with:
+\begin{itemize}
+    \item $k_\text{nc} = \log(I_0(x)) \approx x - 2.4$ ($I_0(x)$ is modified
+        bessel function of the first kind of order 0)
+    \item The signal after the matched filter:
+        \begin{equation}
+            K_m = \frac{1}{E_g} \int_{-\infty}^\infty r(t) s^*_m (t) \text{d}t
+        \end{equation}
+\end{itemize}
+to be able to use this \ac{ml} detector the signal elements are not allowed to only
+differ by phase.
+
+\subsection{\acl{msdd}}
+\ac{dpsk} causes a loss of approximatly 3dB. Assuming a constant $\varphi_\Delta$
+over a block of $N$ symbols we can improve the performance by considering blocks.
+This scheme is called \ac{msdd}. We consider a transmitted vector
+\begin{equation}
+    a = \left[a[0], \ldots, a[N-1]\right]
+\end{equation}
+they correspond to a set of information symbols:
+\begin{equation}
+    \tilde{a} = \left[\tilde{a}[0], \ldots, \tilde{a}[N-1]\right]
+\end{equation}
+with $a[k] = a[k-1] \tilde{a}[k]$. The demodulator will first detect the transmit
+vector $a$ and then calculate $\tilde{a}$ like in \ac{dcpsk}.
+
+The decision rule for \ac{msdd} is based on the \ac{ml} decision:
+\begin{equation}
+    \hat{a} = \argmax_{a \in \mathcal{A}^N} \abs{d[0] + \sum_{k=1}^{N-1} d[k] a[k]^*}
+\end{equation}
+the final transmit symbols are then given by
+\begin{equation}
+    \hat{\tilde{a}} = \hat{a}[k]\hat{a}^*[k-1]
+\end{equation}
+note that the search space increases from $M$ to $M^{N-1}$. Additionally 
+a stable phase needs to be given for a block. If this holds the performance
+converges against the performance of coherent transmission for large $N$. Additionally 
+a stable phase needs to be given for a block. If this holds the performance
+converges against the performance of coherent transmission for large $N$.
