@@ -1,0 +1,149 @@
+\chapter{Digital Frequency Modulation}
+\section{General Concept}
+We consider $M$-ary \ac{fsk} employing hard keying (i.e. the signal elements are limited to the duration $T$ of
+the symbol. Furthermore we assume no coding, i.e. independent and uniformly distributed signal elements.
+
+The signal elements are given by:
+\begin{equation}
+    s_i(t) =
+    \begin{cases}
+        \sqrt{\frac{E_s}{T}} e^{j 2 \pi \left(i - \frac{M-1}{2}\right) h \frac{t}{T}} & t \in [0, T) \\
+        0 & \text{else}
+    \end{cases}
+\end{equation}
+the instantaneous frequency is thus given by:
+\begin{equation}
+    f_{M,i}(t) = \left(i - \frac{M-1}{2}\right) \frac{h}{T}\
+\end{equation}
+the factor $\frac{h}{T}$ specifies the frequency increment between signal elements,
+$h$ is the increment of oscillation between two adjacent signal elements.
+
+Note: the definition of \ac{ask} uses both positive and negative frequencies.
+
+The transmit signal is given by:
+\begin{equation}
+    s(t) = \sum_{k=-\infty}^\infty e^{j \varphi_0[k]} s_{m[k]}(t-kT)
+\end{equation}
+where the term $e^{j \varphi_0[k]}$ can be used to achieve a continuous phase
+(\ac{cpfsk}) this scheme exhibits inherent coding as dependencies between the signals
+are introduced.
+
+\subsection{Average \acl{psd} of \acl{fsk}}
+\subsubsection{Discontinuous \acl{fsk}}
+The average \ac{psd} is given by:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) = \frac{1}{T} \left(\frac{1}{M} \sum_{i=0}^{M-1}
+        \abs{S_i(f)}^2 - \abs{\bar{S}(f)}^2\right) + \frac{1}{T^2} \abs{\bar{S}(f)}^2
+        \sum_{\mu=-\infty}^\infty \delta\left(f - \frac{\mu}{T}\right)
+\end{equation}
+With $\bar{S}(f)$ the average signal element. The \ac{psd} is a superposition of
+squared sinc functions.
+
+\subsubsection{Continuous \acl{fsk}}
+For time limited signals and bipolar \ac{fsk} the average \ac{psd} is given by:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) = \frac{E_s}{M} \sum_{i=0}^{M-1} \left(
+        \text{si}^2 (\gamma_i) + \frac{2}{M} \text{si}(\gamma_i) \sum_{l=0}^{M-1}
+        \alpha_{il} \text{si}(\gamma_l)\right)
+\end{equation}
+with
+\begin{itemize}
+    \item 
+        \begin{equation}
+            c = \frac{\sin(M \pi h)}{M \sin(\pi h)}
+        \end{equation}
+    \item
+        \begin{equation}
+            \gamma_i = \pi \left(fT - (2i - M + 1) \frac{h}{2}\right)
+        \end{equation}
+    \item
+        \begin{equation}
+            \alpha_{il} \frac{\cos(\gamma_i + \gamma_l) -c \cos(\gamma_i + \gamma_l 
+                -2 \pi f T)}{1 - 2 c \cos(2\pi f T) + c^2}
+        \end{equation}
+\end{itemize}
+
+\section{Binary \acl{fsk}}
+\subsection{Discontinuous Binary \acl{fsk}}
+\subsubsection{Normalized Minimum Squared Euclidean Distance of Discontinuous 
+    Binary \acl{fsk}}
+The normalized minimum squared euclidean distance simplifies to:
+\begin{equation}
+    d_\text{min}^2 = 1- \text{si}(2 \pi h)
+\end{equation}
+The maxmimum $d_\text{min}^2$ is achieved for $h \approx 0.715$.
+
+\subsubsection{Signal Space Representation}
+For $h = \frac{n}{2}, n \in \mathbb{N}$ the signals are orthogonal. The smallest $h$
+with orthonormal signals is $h = 0.5$, that is why this scheme is called \ac{msk}.
+
+\subsubsection{Coherent Demodulation of Discontinuous Binary \acl{fsk}}
+The optimum receiver is given by a bank of two matched filters.
+
+The \ac{ber} (which is equal to the \ac{ser}) is given by:
+\begin{equation}
+    \text{BER} = Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+    
+\subsubsection{Non-Coherent Demodulation of Discontinuous Binary \acl{fsk}}
+The optimum receiver for non coherent reception is given by the same bank of two
+filter followed by the absolute value-operation.
+
+The \ac{ber} is given by:
+\begin{equation}
+    \text{BER} = Q_M(x, y) - \frac{1}{2} e^{-{(x^2 + y^2)}^2 / 2} I_0(xy)
+\end{equation}
+with
+\begin{itemize}
+    \item 
+        \begin{equation}
+            x = \sqrt{\frac{E_b}{2 N_0} (1-\sqrt{1 - \abs{\rho}^2})}
+        \end{equation}
+    \item
+        \begin{equation}
+            y = \sqrt{\frac{E_b}{2 N_0} (1+\sqrt{1 - \abs{\rho}^2})}
+        \end{equation}
+    \item
+        \begin{equation}
+            \rho = \frac{1}{E_g} \int s_0(t) s_1(t)^* \text{d}t
+        \end{equation}
+\end{itemize}
+
+For $h \in \mathbb{N}\setminus \{0\}$ this simplifies to:
+\begin{equation}
+    \text{BER} = \frac{1}{2} e^{-\frac{E_b}{2 N_0}}
+\end{equation}
+2-\ac{fsk} is 3dB less power efficient than 2 \ac{dpsk}.
+
+\subsection{Binary Continuous-Phase \ac{fsk}}
+\subsubsection{Trellis Description of Binary Continuous-Phase \acl{fsk}}
+The phase after an interval with $k$ even is either $\pm \frac{\pi}{2}$, after
+an interval with $k$ off it is $0$ or $\pi$. Thus the states can be represented by
+a statemachine with two states, or an trellis diagram with two rows.
+
+\subsubsection{Normalized Minimum Squared Euclidean Distance of Binary Continuous-Phase
+    \acl{fsk}}
+The normalized squared euclidean distance of binary \ac{cpfsk} with $h=1/2$ is
+\begin{equation}
+    d_\text{min}^2 = 2
+\end{equation}
+These results coincide with the results for \ac{msk}/\ac{oqam}. The performance has a 
+3dB better power effiency than non continuous \ac{fsk}.
+
+\subsubsection{Coherent Demodulation of Binary Continuous-Phase \acl{fsk}}
+We assume $h=0.5$ so the signal elements are orthogonal and form the basis.
+The optimum receiver is given by the bank of the two matched filter, each followed
+by a multiplication with $j^k$, in the end the real part of the signal is considered
+for the viterbi algorithm.
+
+\section{$M$-ary \acl{fsk}}
+For $M$-ary, discontinuous \ac{fsk} the normalized squared euclidean distance is given by:
+\begin{equation}
+    d_\text{min}^2 = \log_2(M) \min_{\forall i \in \{1, \ldots, M-1\}}
+        \left(1 - \text{si}(2 \pi i h)\right)
+\end{equation}
+
+An upper bound for the \ac{ser} is given by:
+\begin{equation}
+    \text{SER} \geq (M-1) Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
