@@ -1,0 +1,317 @@
+\chapter{Equalization of Dispersive Channels}
+\section{Problem Description}
+\begin{itemize}
+    \item \textbf{\ac{pam}-Transmitter}:
+
+        We assume conventional \ac{pam} transmission with symbol interval $T$.
+        The basis pulse shape is denoted by (T stands for transmit)
+        $g_T(t) \laplace G_T(f)$. Additionally we define a second signal
+        $H_T(f) = \frac{1}{T} G_T(f)$. The \ac{pam} transmit signal
+        is then given by:
+        \begin{equation}
+            s(t) \sum_k a[k] g_T(t - kT)
+        \end{equation}
+        we assume white, zero mean datasymbols drawn from $\mathcal{A}$, i.e.:
+        \begin{equation}
+            \Phi_{aa}(e^{j 2 \pi f T}) = \sigma_a^2
+        \end{equation}
+
+    \item \textbf{Channel}:
+        
+        The channel is characterized by its impulse response/transfert function
+        $h_C(t) \laplace H_C(f)$. 
+
+        It is synonymous to say that:
+        \begin{itemize}
+            \item $h_C(t) \neq c \delta(t-t_0)$: the channel is dispersive it not only
+                scales and delays the signal
+            \item $\abs{H_C(f)} \neq c$ i.e. the channel tranfer function is not flat
+        \end{itemize}
+        additionally to the (non-flat) channel transfer funtion we still assume AWGN
+\end{itemize}
+
+\subsubsection{End-to-End Pulse}
+We define an end-to-end pulse/transfer function consisting of the basis pulse and the
+channel impulse response:
+\begin{equation}
+    g(t) = g_T(t) * h_C(t) \laplace G(f) = G_T(f) \cdot H_C(f)
+\end{equation}
+this end to end model can be interpreted as a normal \ac{pam} scheme but the $\sqrt{\text{
+Nyquist}}$ property does not hold anymore. Hence \ac{isi} occurs.
+
+\subsubsection{Spectral \acl{snr}}
+The spectral \ac{snr} is given by:
+\begin{equation}
+    \text{SNR}(f) = \frac{\sigma_a^2 \abs{G(f)}^2}{T N_0}
+\end{equation}
+
+\subsubsection{Receive Filter}
+As usual in \ac{pam} transmission the noisy receive signal
+\begin{equation}
+    r(t) = s(t) * h_C(t) + n(t)
+\end{equation}
+is filtered by a receive filter $h_R(t) \laplace H_R(f)$ and then sampled at the symbol
+frequency $\frac{1}{T}$. By this the discrete time sequence of receive symbols $d[k]$
+is obtained.
+
+\subsubsection{Discrete-Time End-to-End Model}
+The overall discrete time impulse response is given by $h[k] \laplace H(z)$, i.e.
+\begin{equation}
+    d[k] = a[k] * h[k]
+\end{equation}
+The transfer function is given by the product of the individual transfer funtions
+followed by the sampling step (periodic continuation):
+\begin{equation}
+    H(e^{j 2 \pi f T}) = \sum_\mu H_T\left(f \frac{\mu}{T}\right) 
+        H_C\left(f - \frac{\mu}{T}\right)
+        H_R\left(f - \frac{\mu}{T}\right)
+\end{equation}
+
+and the \ac{psd} of the noise sequence $n[k]$:
+\begin{equation}
+    \Phi_{nn}(e^{j 2 \pi f T}) = \frac{N_0}{T} \sum_\mu \abs{H_R\left(f - \frac{\mu}{T}\right)}^2
+\end{equation}
+
+\section{Optimum Receiver}
+\subsection{\acl{mlsd}}
+We consider data sequences of length $N$: there are $M^N$ possible transmit vectors
+$a \in \mathcal{A}^N$ (we enumerate them as $a_0, \ldots, a_{M^N-1}$). These
+vectors correspond to $M^N$ possible signals:
+\begin{equation}
+    s_i(t) = \sum_{k=0}^{N-1} a_i[k] g(t-kT)
+\end{equation}
+with $a_i \in \mathcal{A}^N$.
+
+A naive implementation of the matched-filter demodulator would yield $M^N$ matched
+filters with decision metric:
+\begin{equation}
+    \lambda_i = 2 \Re{\left(r(t) * \frac{1}{E_g} s_i^*(-t)\right)\vert_{t=0}} - \frac{E_i}{E_g}
+\end{equation}
+with
+\begin{equation}
+    E_i = \int_{-\infty}^\infty \abs{s_i(t)}^2 \text{d}t
+\end{equation}
+
+this yields an extremely high number of matched filters.
+
+Using the definitions if the signal elements we can rewrite $\lambda_i$ to:
+\begin{equation}
+    \sum_{k=0}^{N-1} 2 \Re{a_i^*[k] d_M[k]} - \sum_{k=0}^{N-1} \sum_{j=0}^{N-1}
+        a_i[j] a_i^*[k] \psi_{gg}[k-j]
+\end{equation}
+with
+\begin{itemize}
+    \item Samples at the output of the matched filter:
+        \begin{equation}
+            d_M[k] = \frac{1}{E_g} \int_{\infty}^\infty r(t) g^*(t-kT)\text{d}t
+        \end{equation}
+    \item And the normalized, sampled autocorrelation of $g$:
+        \begin{equation}
+            \psi_{gg}[k] = \frac{1}{E_g} \int_{-\infty}^\infty g(t+kT) g^*(t) \text{d}t
+        \end{equation}
+\end{itemize}
+Furthermore we assume:
+\begin{equation}
+    \psi_{gg}[k] = 0\ \forall k > \abs{L}
+\end{equation}
+i.e. the \ac{isi} is finite with $L$ beeing the strength.
+
+We can conclude that the matched filter provides sufficient statistics for the optimum
+receiver and we do not need a bank of $M^N$ matched filter.
+
+When increasing the length of the sequence from $N$ to $N+1$ blocks we arrive at:
+\begin{equation}
+    \lambda_{N+1} = \lambda_N + 2 \Re{a^*[N] \left(
+        2 d_M[N] - a[N] \psi_{gg}[0] - 2 \sum_{l=1}^L a[N-l] \psi_{gg}[l]\right)}
+\end{equation}
+this recursive definition can be represented by a finite state machine or trellis
+diagram.
+
+\subsubsection{Power Efficiency of \acl{mlsd}}
+The symbol error ratio can be approximated by:
+\begin{equation}
+    \text{SER} = N_\text{min} Q\left(\sqrt{d_\text{min}^2 \frac{E_b}{N_0}}\right)
+\end{equation}
+with
+\begin{equation}
+    d_\text{min}^2 \frac{E_g}{2 E_b} \min_{\forall <\Delta_a[k]> \neq <0>}
+        \sum_k \sum_l \Delta_a[k] \Delta_a^*[l] \psi_{gg}[l-k]
+\end{equation}
+with the difference symbol $\Delta_a[k]$ defined by:
+\begin{equation}
+    \Delta_a[k] = a^{(m)}[k] - a^{(\mu)}[k]
+\end{equation}
+
+\section{Linear and Non-Linear Equalization}
+For large $M$ and $L$ the Trellis becomes very large. Thus (non-optimal) reduced complexity
+receivers are of interest. We still keep the matched filter and $T$-spaced sampling, only
+the discrete time processing (formerly viterbi algorithm) is optimized.
+
+The end-to-end receiver model is then given by:
+\begin{equation}
+    H_R(f) = \frac{1}{E_g} G^*(f) F\left(e^{j 2 \pi f T}\right)
+\end{equation}
+
+The end-to-end model is given by (MF denotes matched filter):
+\begin{equation}
+    h^{(\text{MF})}[k] = \psi_{gg}[k]
+\end{equation}
+or
+\begin{equation}
+    H^{\text{MF})}\left(e^{j 2 \pi f T}\right) = \Psi_{gg}\left(e^{j 2 \pi f T}\right)
+\end{equation}
+
+the noise \ac{psd} is given by:
+\begin{equation}
+    \phi^{(\text{MF})}[k] = \frac{N_0}{E_g} \psi_{gg}[k]
+\end{equation}
+or
+\begin{equation}
+    \Phi_{nn}^{(\text{MF})}\left(e^{j 2 \pi f T}\right) = \frac{N_0}{E_g}
+        \Psi_{gg}\left(e^{j 2 \pi f T}\right)
+\end{equation}
+
+\subsection{Matched-Filter Bound}
+We assume that the receiver frontend only consists of the matched filter and only
+a single symbol $a[k]$ is beeing transmitted, i.e. \ac{isi} is ignored.
+
+The \ac{snr} is given by:
+\begin{equation}
+    \text{SNR}^\text{(MF)} = T \int_{-\frac{1}{2T}}^\frac{1}{2T}
+        \frac{\sigma_a^2 E_g}{N_0} H^{(MF)} \left(e^{j2 \pi f T}\right)
+        \text{d}f
+\end{equation}
+
+We define the folded spectral \ac{snr} as
+\begin{equation}
+    \tilde{\text{SNR}}\left(e^{j 2 \pi f T}\right) =
+    \sum_\mu \text{SNR}\left(f - \frac{\mu}{T}\right)
+\end{equation}
+
+this gives us the matched filter bound of:
+\begin{equation}
+    \text{SNR}^\text{(MF)} = T \int_{-\frac{1}{2T}}^\frac{1}{2T} 
+        \tilde{\text{SNR}} \left(e^{j 2 \pi f T}\right) \text{d}f
+\end{equation}
+
+\subsection{Linear Equalization}
+\subsubsection{Receive Filter}
+The aim of \ac{le} is to adjust the receive filter in such a way that symbol-by-symbol
+decision are possible. We choose:
+
+\begin{equation}
+    F_L(z) = \frac{1}{\Psi_{gg}(z)}
+\end{equation}
+with
+\begin{equation}
+    \Psi_{gg}(z) \sum_k \psi_{gg}[k] z^{-k}
+\end{equation}
+the \ac{isi} is force to zero, thus this scheme is also called \ac{zfle}.
+
+Note that the filter does not equalized the continuous filter respons, but
+only at the sampling instances to fulfill the Nyquist criterion. 
+
+\subsubsection{Discrete-Time End-to-End Model}
+The discrete time end-to-end impulse response/signal transfer function is given by:
+\begin{equation}
+    h^\text{(LE)}[k] = \delta[k]
+\end{equation}
+or
+\begin{equation}
+    H^\text{(LE)}\left(e^{j 2 \pi f T}\right) = 1
+\end{equation}
+
+the \ac{psd} is given by:
+\begin{equation}
+    \Phi_{nn}^\text{(LE)} \left(e^{j 2 \pi f T}\right)
+    = N_0 T \frac{1}{\sum_\mu \abs{G\left(f-\frac{\mu}{T}\right)}^2}
+\end{equation}
+and is thus not constant, i.e. the noise is not white.
+
+\subsubsection{\acl{snr}}
+The \ac{snr} is given by the harmonic mean over the folded spectral \ac{snr}:
+\begin{equation}
+    \text{SNR}^\text{(LE)} = \frac{1}{T \int_{-\frac{1}{2T}}^\frac{1}{2T} 
+        \frac{1}{\tilde{\text{SNR}}\left(e^{j 2 \pi f T}\right)}\text{d}f}
+\end{equation}
+
+\subsection{Decision-Feedback Equalization}
+\subsubsection{Receive Filter}
+In order to obtain white noise the discrete-time part $F_W(z)$ has to be chosen such, that
+the colored noise is whitened, i.e.:
+\begin{equation}
+    \Phi_{nn}^\text{(MF)}\left(e^{j 2 \pi f T}\right) 
+        \abs{F_W\left(e^{j 2 \pi f T}\right)}^2 = \sigma_{n, \text{(DFE)}}^2
+\end{equation}
+we split $F_W$ into a filter for linear equalization $F_L$ and an additonal filter $H(z)$:
+\begin{equation}
+    F_W(z) = F_L(z) H(z)
+\end{equation}
+For a causal $B$ with:
+\begin{equation}
+    \Psi_{gg}(z) = B(z) B^*({z^*}^{-1})
+\end{equation}
+we can select the transfer function as:
+\begin{equation}
+    H(z) = \frac{1}{b[0]} B(z)
+\end{equation}
+in order to achieve the lowest noise power $\abs{b[0]}$ should be maximized, this
+is achieved for the transfer function with minimum phase (all zeros inside the
+unit circle).
+
+\subsubsection{Discrete-Time End-to-End Model}
+Using the definitions derived above we arrive at:
+\begin{equation}
+    H^\text{(DFE)}(e^{j 2 \pi f T}) = H(e^{j 2 \pi f T})
+\end{equation}
+and the noise is white
+\begin{equation}
+    \Phi_{nn}^\text{(DFE)}(e^{j 2 \pi f T}) = \sigma^2_{n, \text{(DFE)}}
+\end{equation}
+
+\subsubsection{Decision-Feedback Equalization}
+Assuming we have correctly decoded the last symbol we can use this symbol the subtract
+the additive noise caused by the channel, thus we only get the current symbol with additive
+noise.
+
+This yields two possible problems: coding can not be considered for; an single error
+will propagate over multiple time steps.
+
+\subsubsection{\acl{snr}}
+The \ac{snr} is given by the geometric mean over the folded spectral \ac{snr}:
+\begin{equation}
+    \text{SNR}^\text{(LE)} = \exp\left( T \int_{-\frac{1}{2T}}^\frac{1}{2T} \log \left(
+        \tilde{\text{SNR}}(e^{j 2 \pi f T})\right) \text{d}f\right)
+\end{equation}
+
+The performance is thus better than the performance of linear equalization.
+
+\subsubsection{\acl{dfe} and Channel Capacity}
+For large \ac{snr} \ac{dfe} converges against the channel capacity, i.e. it is optimal.
+
+\section{\acl{mlsd} (II)}
+Instead of directly appending the (hard decision) \ac{dfe} at the whitening filter a more
+costly search over all possible sequences is appended.
+
+\subsection{End-to-End Model}
+The receive signal after the whitening filter is given by:
+\begin{equation}
+    d_W[k] = z[k] + n[k]
+\end{equation}
+with
+\begin{equation}
+    z[k] = a[k] + \sum_{l=1}^L a[k-l]h[l]
+\end{equation}
+
+\subsection{Maximum-Likelihood Approach}
+We can search over all sequences finding the sequence with the smallest euclidean distance,
+this assumes white, gaussian noise.
+
+This can also be done using a trellis diagram.
+
+\subsection{Reduced-State Sequence Detection}
+It is also possible to define a mixed form between \ac{dfe} (considering only the last time
+step $R=1$) and \ac{mlsd} (considering the complete history $R=N$), such that $1 < R < N$.
+This procedure is called \ac{dfse}.
+
+
