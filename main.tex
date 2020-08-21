@@ -27,7 +27,8 @@
 \usepackage{trfsigns}
 \usepackage{hyperref}
 \usepackage[withpage]{acronym}
-
+\usepackage{mathtools}
+\usepackage{graphicx}
 
 \usetikzlibrary{calc,shapes.multipart,chains,arrows}
 
@@ -41,6 +42,9 @@
 \DeclareMathOperator*{\diag}{diag}
 \DeclareMathOperator*{\rank}{rank}
 \newcommand{\T}[1]{#1^\text{T}}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
 \tikzset{
     max width/.style args={#1}{

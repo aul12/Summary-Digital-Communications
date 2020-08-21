@@ -198,7 +198,7 @@ The receive signal is given by:
 \begin{equation}
     r(t) = s(t) + n(t)
 \end{equation}
-For AWGN-Channels $n(t)$ is complex valued, white Gaussian noise with \ac{psd} $N_0$.
+For \ac{awgn}-Channels $n(t)$ is complex valued, white Gaussian noise with \ac{psd} $N_0$.
 
 General setup for the receiver:
 \begin{enumerate}
@@ -248,7 +248,7 @@ at the sampling time we get:
     \tilde{d}(T_d) = \gamma E_b
 \end{equation}
 
-The \ac{acf} of the AWGN-\ac{ecb}-noise after the matched filter is given by:
+The \ac{acf} of the \ac{awgn}-\ac{ecb}-noise after the matched filter is given by:
 \begin{equation}
     \phi_{n_d n_d}(\tau) = N_0 \gamma^2 \varphi_{gg}(\tau)
 \end{equation}
@@ -292,7 +292,7 @@ the \ac{acf} of the noise is given by:
         0 & \kappa \in \mathbb{Z} \setminus \{0\}
     \end{cases}
 \end{equation}
-as a result we can model the channel using discrete time AWGN noise with
+as a result we can model the channel using discrete time \ac{awgn} noise with
 \begin{equation}
     \sigma_n^2 = \frac{N_0}{E_g}
 \end{equation}
@@ -346,7 +346,7 @@ For equiprobable symbols the \ac{map} strategy simplifies to the \ac{ml} strateg
 \begin{equation}
     \hat{a} = \argmax_{a \in \mathcal{A}} f_d(d|a)
 \end{equation}
-for AWGN channels this is equivalent to minimizing the (squared) euclidean distance
+for \ac{awgn} channels this is equivalent to minimizing the (squared) euclidean distance
 between observation $d$ and hypothesis $\hat{a}$.
 
 \section{Bit and Symbol Error Ratio}

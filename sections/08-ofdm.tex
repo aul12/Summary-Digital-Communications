@@ -1,0 +1,238 @@
+\chapter{\acl{ofdm}}
+\section{Basic Principles of \acl{ofdm}}
+We are still considering a linear, dispersive channel with
+\begin{equation}
+    h_C(t) \laplace H_C(f)
+\end{equation}
+and \ac{awgn}.
+
+\subsubsection{Frequency Multiplexing}
+    The channel has bandwidth $B_\text{RF}$, thus the minimal symbol duration is $T=\frac{1}{B_\text{RF}}$. 
+
+The main idea is to divide the transmission band into $D$ subbands of width:
+\begin{equation}
+    B_S = \frac{B_\text{RF}}{D}
+\end{equation}
+the smallest symbol duration for each subband is then given by:
+\begin{equation}
+    T_S = \frac{1}{B_S} = D T
+\end{equation}
+
+in \ac{ecb} domain the transmission band is defined to be at:
+\begin{equation}
+    f \in \left[-\frac{B_S}{2}, B_\text{RF} - \frac{B_S}{2}\right]
+\end{equation}
+thus the reference frequency $f_0$ and the center frequency differ. But the 
+carrier frequency in the $d$-th subband is defined easily as:
+\begin{equation}
+    f_{c,d} = d B_s = \frac{d}{T_s}
+\end{equation}
+for $d \in \{0, \ldots, D-1\}$.
+
+This scheme is called \ac{ofdm}, \ac{dmt} or \ac{mcm}.
+
+\subsubsection{\acl{ofdm} Transmitter}
+The naive implementation consisting of $D$ parallel \ac{pam} transmitters/receivers
+is to complex, thus some simplifications are made:
+\begin{itemize}
+    \item Instead of using multiple modulators each with it's own frequency multiple
+        pulse shapes are used (identical to how it is done in the general digital
+        communications scheme). These pulses are orthogonal.
+    \item The pulse shapes $g_j(t)$ are expected to be composed of $D$ chips,
+        thus every chip has a duration of $T$.
+
+        Using the chip weights $w_{l,j}$ we can get the pulse shapes as
+        \begin{equation}
+            g_j(t) = \sum_{l=0}^{D-1} w_{l,j} g_T(t - lT)
+        \end{equation}
+        i.e. the pulses $g_j(t)$ are \ac{pam} signals.
+
+        The complete transmit signal is given by:
+        \begin{eqnarray}
+            s(t) &=& \sum_{j=0}^{D-1} \sum_{k_s} a_j[k_s] \sum_{l=0}^{D-1}
+                w_{l,j} g_T(t-lT - k_s T_s) \\
+                &=& \sum_k x[k] g_T(t-kT)
+        \end{eqnarray}
+        with 
+        \begin{equation}
+            x[k] = x_{k \mod D}[\floor{\frac{k}{D}}]
+        \end{equation}
+        and 
+        \begin{equation}
+            x_l[k_s] = \sum_{j=0}^{D-1} w_{l,j} a_j[k_s]
+        \end{equation}
+
+        the \ac{ofdm} signal is thus a \ac{pam} signal, computed over blocks.
+\end{itemize}
+
+\subsubsection{Block Transmission}
+In summary we get a block transmission, \ac{isi} is still present, but only within
+the block.
+
+We use an whitened matched filter to achieve white noise, but \ac{isi} is still
+possible. There are multiple strategies to compensate for \ac{isi} between blocks:
+\begin{itemize}
+    \item
+        After each block $L$ zeros are transmitted, this clears the channel memory
+        (as it is an LTI system)
+    \item
+        Instead of an all-zero word any other fixed word can be used. This is known
+        as unique-word \ac{ofdm}, but in general more complex than zero padding.
+    \item
+        The most common strategy is partial cyclic repetition of the transmit block,
+        thereby parts of the signals are appended. This yields a cyclic convolution
+        with the channel impulse response
+\end{itemize}
+
+The block processing consists of:
+\begin{enumerate}
+    \item Given the $D$ data symbols $a_j[k_s], j \in \{0, \ldots, D-1\}$ of a block
+        at time index $k_s$ the $D$ channel symbols $x_l[k_s], l \in \{0, \ldots, D-1\}$
+        are calculated
+    \item A cyclic prefix, the guard interval, of $D_0 \geq L$ symbols is introduced
+    \item The entire block of $D+D_0$ symbols is serially transmitted over the channel
+    \item At the receiver the guard interval is discarded a block of $D$ symbols
+        $y_l[k_s], l \in \{0, \ldots, D-1\}$ are calculated
+    \item From the block of channel output symbols $D$ detection symbols $d_j[k_s],
+        j \in \{0, \ldots, D-1\}$ are introduced
+\end{enumerate}
+
+In matrix/vector notation:
+\begin{itemize}
+    \item The block of the $D$ transmit symbols is given by:
+        \begin{equation}
+            x[k_s] = \left[x_0[k_s], \ldots, x_{D-1}[k_s]\right]
+        \end{equation}
+    \item The block of receive symbols is given by:
+        \begin{eqnarray}
+            y[k_s] &=& \left[y_0[k_s], \ldots, y_{D-1}[k_s]\right] \\
+                &=& x[k_s] \cdot H_C + n[k]
+        \end{eqnarray}
+        with $n[k]$ a vector of \ac{awgn}. The matrix $H_C$ is given by:
+        \begin{equation}
+            H_C = \begin{pmatrix}
+                h[0] & h[1] & \cdots & h[L] & & 0 \\
+                0 & h[0] & \ddots & & \ddots\\
+                  & \ddots & \ddots & \ddots & & h[L] \\
+                h[L] & \cdots & 0 & \ddots & \ddots & \vdots \\
+                \vdots & \ddots & & & \ddots & h[1] \\
+                h[1] & \cdots & h[L]  & & & h[0]
+            \end{pmatrix}
+        \end{equation}
+\end{itemize}
+as $H_C$ is not diagonal \ac{isi} occurs, we need to diagonalize $H_C$. For
+this we find to eigenvectors, for circulant matrices the matrix of eigenvectors
+(modal matrix) is given by:
+\begin{equation}
+    W_D = \frac{1}{\sqrt{D}} \begin{pmatrix}
+        1 & 1 & 1 & \cdots & 1 \\
+        1 & e^{-j\frac{2 \pi}{D}} & e^{-j \frac{2 \pi}{D} 2} & \cdots & e^{-j \frac{2 \pi}{D} (D-1)} \\
+        1 & e^{-j \frac{2 \pi}{D} 2} & \text{\reflectbox{$\ddots$}} & & \vdots \\
+        \vdots & \vdots \\
+        1 & e^{-j \frac{2 \pi}{D} (D-1)} & \cdots & \cdots & e^{-j \frac{2 \pi}{D} {(D-1)}^2}
+    \end{pmatrix}
+\end{equation}
+this shows that we can filter the signal on the transmitter side with the inverse modal
+matrix, transmit the signal and filter it on the receiver side with the modal matrix
+to yield an \ac{isi} free end to end signal.
+
+We can also describe the protocol in frequency domain:
+\begin{enumerate}
+    \item The data symbols $a_d[k_s]$ are interpreted to be frequency-domain symbols
+    \item The inverse DFT of $a[k_s] = \left[a_0[k_s], \ldots, a_{D-1}[k_s]\right]$
+        is calculated to obtain the time-domain symbols:
+        \begin{equation}
+            x[k_s] = a[k_s] W_D^{-1}
+        \end{equation}
+    \item The guard interval is inserted
+    \item The block is serially transmitted over the channel
+    \item At the receiver the guard interval is ignored and the receive block is extracted
+    \item The DFT of $y[k_s]$ is calculated to obtain
+        \begin{equation}
+            d[k_s] = y[k_s] W_D
+        \end{equation}
+    \item The detection symbols $d_j[k_s]$ can be again interpreted to be in frequency domain
+\end{enumerate}
+
+\subsubsection{End-to-End Model of \acl{ofdm}}
+Like derived above the \ac{isi} channel is transformed into $D$ parallel, independent
+channels with individual scaling. The scaling factors are the eigenvalues. The noise
+variance is given by:
+\begin{equation}
+    \sigma_{n,k}^2 \approx \Phi_{nn}(e^{j 2 \pi \frac{k}{D}})
+\end{equation}
+
+
+\subsubsection{Average \acl{psd} of \acl{ofdm} signals}
+It can be shown that the average \acl{psd} is given by:
+\begin{equation}
+    \bar{\Phi}_{ss}(f) = \left(\frac{T_s}{D} \sum_{\mu = -\infty}^\infty
+        \sigma^2_{a, \mu \mod D} \text{si}^2 (\pi (f T_s - \mu \frac{D + D_0}{D}))\right)
+        \abs{H_T(f)}^2
+\end{equation}
+
+\section{Optimization of \acl{ofdm}}
+The individual channels are all assumed to be flat. Still there can be a difference in
+attenuation and thus \ac{snr} over the different channels. To improve performance
+coded transmission can be used.
+
+Regarding coding two scenarios need to be differentiated:
+\begin{itemize}
+    \item Broadcast scenario: the channel is different per user thus a general scheme,
+        \ac{cofdm} must be used
+    \item Point-to-Point scenario: the channel transfer function is known and thus the
+        transmission rate over the individual channels can be optimized using so-called
+        loading algorithms 
+\end{itemize}
+
+For a loading algorithm we demand that the total transmit power and the total data
+rate should be fixed.
+
+\subsubsection{Optimization}
+We will minimize the uncoded error probability under the given constraints. The
+\ac{ser} for a single channel is given by:
+\begin{equation}
+    \text{SER}_j = N_{\text{min},j} Q\left(\sqrt{\text{SNR}_{0,j}}\right)
+\end{equation}
+with
+\begin{equation}
+    \text{SNR}_{0,j} = \frac{\abs{\lambda_j}^2 V_j^2}
+        {\sigma_{n,j}^2 / 2}
+\end{equation}
+with $V_j$ being a scaling factor used for adjusting the power.
+
+
+For 4-\ac{qam} the factor $N_{\text{min},j} \approx 4$ is constant. Additionally we can
+see that lowest \ac{ser} is achieved for a constant error rate over the channels.
+For this we define the \ac{snr} as a function of the indivdual \ac{snr}s as:
+\begin{equation}
+    \text{SNR} = \frac{\sigma_a^2}{2} \text{SNR}_0
+\end{equation}
+furthermore we demand (derived from the constant error rate):
+\begin{equation}
+    \text{SNR}_{0,j} = \frac{V_J^2}{Q_j/2} \stackrel{!}{=} \text{SNR}_0
+\end{equation}
+with the definition $Q_j = \sigma_{n,j}^2 / \abs{\lambda_j}^2$. Thus we want to optimize
+$\text{SNR}_0$ under the given constraints.
+
+When relaxing the constraint of integer constellations we can use Langrangian optimization
+which will lead to:
+\begin{eqnarray}
+    R_j &=& \frac{R_T}{D} + \frac{1}{D} \log_2 \left(\frac{\prod_{l=0}^{D-1}
+        \frac{\sigma_{n,l}^2}{\abs{\lambda_l}^2}}{
+        {\left(\frac{\sigma_{n,j}^2}{\abs{\lambda_j}^2}\right)}^D}\right) \\
+    S_j &=& \frac{S_T}{D}
+\end{eqnarray}
+
+\section{Comparison of Single-and Multicarrierer Modulation}
+\begin{itemize}
+    \item Single Carrier Modulation is time invariant but nonlinear
+    \item Multi Carrier Modulation is time variant but linear
+\end{itemize}
+
+The \ac{snr} of optimally loaded \ac{snr} is given by:
+\begin{equation}
+    \text{SNR}^\text{(OFDM)} = \exp\left(T \int_{-\frac{1}{2T}}^\frac{1}{2T} 
+        \log\left(\tilde{\text{SNR}}(e^{j 2 \pi f T})\right)\text{d}f\right)
+\end{equation}
+thus \ac{ofdm} and \ac{dfe} have potentially the same performance.
