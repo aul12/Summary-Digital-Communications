@@ -1,0 +1,79 @@
+\chapter{Overview}
+\section{\acl{pam}}
+The signal is given by ($g(t)$ is basic pulse shape, $a \in \mathcal{A}$ is a signal
+point):
+\begin{equation}
+    s(t) = \sum_{k=-\infty}^\infty a[k] g(t-kT)
+\end{equation}
+
+\subsection{\acl{ask}}
+Signal points on the real axis either only positive (unary) or symmetrical (binary).
+
+\subsection{\acl{psk}}
+Signal points on the unit circle.
+
+\subsection{\acl{qam}}
+Signal points spaced regularly on the complex plane.
+
+\subsection{\acl{oqam}}
+\ac{qam} with the quadrature branch delayed by $T/2$ thus only the in-phase or the
+quadrature part changes. This yields a signal without zero crossing, which yields a
+more constant envelope and thus a smaller crest factor.
+
+\subsection{\acl{msk}}
+\ac{oqam} with $M=4$ and a truncated $\cos$ (i.e. only the positive part centered around
+zero) as $g$. Yields a constant envelope and thus $\zeta=1$.
+
+\subsubsection{Pros}
+Constant envelope \ac{qam}
+
+\subsubsection{Cons}
+Half the spectral efficiency of \ac{qam}. Infinite Bandwidth.
+
+\subsection{\acl{gmsk}}
+Filtering of \ac{msk} with a gaussian filter to achieve a smaller bandwidth
+
+\subsubsection{Cons}
+Nonlinear.
+
+\subsection{\acl{dpsk}}
+Information not in absolute phase but relative to last phase.
+
+\ac{dcpsk} receiver: \ac{psk} receiver followed by differentiation.
+
+\ac{dpsk} receiver: first differentiation then a \ac{psk} demodulator.
+
+\subsubsection{Pros}
+Can handle non coherent phase.
+
+\subsubsection{Cons}
+Worse performance than coherent schemes, binary \ac{dpsk} has equal performance.
+
+\section{\acl{fsk}}
+Information is encoded in the instantaneous frequency. We can add a additional phase offset
+to achieve continuous \ac{fsk} in contrast to discontinuous \ac{fsk}.
+
+\section{Dispersive Channels}
+\subsection{\acl{le} / \acl{zfle}}
+The \ac{isi} is force to zero at the sampling time steps.
+
+\subsubsection{Pros}
+No \ac{isi}.
+
+\subsubsection{Cons}
+Non white noise.
+
+
+\subsection{\acl{dfe}}
+The last symbols are used to subtract the additive noise (smearing) caused by the channel.
+
+\subsubsection{Pros}
+Simple implementation, better performance than \ac{le}.
+
+\subsubsection{Cons}
+Coding can not be considered. Error will propagate over time.
+
+\section{\acl{ofdm}}
+The bandwidth is split equally into $D$ subchannels. The data symbols are interpreted to be
+frequency domain symbols. Loading optimizes the datarate per subchannel to achieve better
+performance.
